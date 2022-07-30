@@ -36,7 +36,9 @@ class Strings implements StringsInterface
      */
     public function getBrandName(string $noun): string
     {
-        $brand = "The " . ucfirst($noun);
+        $prefix = "The";
+        $brand = $prefix . " " . ucfirst($noun);
+        // if a noun STARTS and ENDS with the same letter
         if (substr($noun, 0, 1) == substr($noun, -1)) {
             $brand = ucfirst($noun) . substr($noun, 1);
         }
@@ -44,6 +46,8 @@ class Strings implements StringsInterface
     }
 
     /**
+     * Reverse multibyte string
+     *
      * @param  string $input
      * @return string
      */
