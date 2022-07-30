@@ -25,7 +25,7 @@ class Strings implements StringsInterface
         $reversed = '';
         $words = explode(' ', $input);
         foreach ($words as $word) {
-            $reversed .= $this->mb_strrev($word).' ';
+            $reversed .= $this->mb_strrev($word). ' ';
         }
         return trim($reversed);
     }
@@ -36,10 +36,9 @@ class Strings implements StringsInterface
      */
     public function getBrandName(string $noun): string
     {
+        $brand = "The " . ucfirst($noun);
         if (substr($noun, 0, 1) == substr($noun, -1)) {
             $brand = ucfirst($noun) . substr($noun, 1);
-        }
-        else { $brand = "The " . ucfirst($noun);
         }
         return $brand;
     }
