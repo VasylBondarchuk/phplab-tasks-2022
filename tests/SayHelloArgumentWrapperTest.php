@@ -16,7 +16,7 @@ class SayHelloArgumentWrapperTest extends TestCase
      */
     public function testException($arg)
     {
-        $this->expectExceptionMessage("Only number, string or bool are allowed. Input type was: ". gettype($arg));
+        $this->expectExceptionMessage('Only '. $this->functions->getAllowedTypesAsString() . ' are allowed. Input type was: ' . gettype($arg));
         $this->expectException(InvalidArgumentException::class);
         $this->functions->sayHelloArgumentWrapper($arg);
     }
@@ -26,7 +26,8 @@ class SayHelloArgumentWrapperTest extends TestCase
         return [
             [new class {}],
             [null],
-            [[1,2,3]]
+            [[1,2,3]],
+            [tmpfile()]
         ];
     }
 }
