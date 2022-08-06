@@ -11,7 +11,7 @@ class SayHelloTest extends TestCase
         $this->functions = new functions\Functions();
     }
 
-    public function testExpectFooActualFoo()
+    public function testExpectHelloActualHello()
     {
         $this->expectOutputString($this->functions->sayHello());
         print 'Hello';

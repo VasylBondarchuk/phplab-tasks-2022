@@ -19,6 +19,9 @@
 
 namespace functions;
 
+use Exception;
+use InvalidArgumentException;
+
 class Functions
 {
     /**
@@ -57,8 +60,12 @@ class Functions
      */
     public function sayHelloArgumentWrapper($arg): string
     {
-        // put your code here
-
+        $allowedTypes = ['boolean','integer','double','string'];
+        if(!in_array(gettype($arg),$allowedTypes)){
+            throw new InvalidArgumentException(
+                "Only number, string or bool are allowed. Input type was: " . gettype($arg)
+            );
+        }
         return $this->sayHelloArgument($arg);
     }
 
