@@ -94,9 +94,14 @@ class Functions
      * @return array
      * @throws \InvalidArgumentException
      */
-    public function countArgumentsWrapper(): array
+    public function countArgumentsWrapper(array $argumentsArray): array
     {
-        // put your code here
+        if(!$this->areAllArgumentsString($argumentsArray)){
+            throw new InvalidArgumentException(
+                'All arguments should be of type string'
+            );
+        }
+        return $this->countArguments(...$argumentsArray);
     }
 
     public function getAllowedTypesArray(): array
@@ -107,5 +112,15 @@ class Functions
     public function getAllowedTypesAsString(): string
     {
         return trim(implode(', ', $this->getAllowedTypesArray()));
+    }
+
+    public function areAllArgumentsString(array $argumentsArray): bool
+    {
+        foreach($argumentsArray as $argument){
+            if(gettype($argument)!== 'string'){
+                return false;
+            }
+        }
+        return true;
     }
 }
