@@ -21,6 +21,9 @@ namespace functions;
 
 use InvalidArgumentException;
 
+/**
+ *
+ */
 class Functions
 {
     /**
@@ -104,20 +107,30 @@ class Functions
         return $this->countArguments(...$argumentsArray);
     }
 
+    /**
+     * @return string[]
+     */
     public function getAllowedTypesArray(): array
     {
         return ['boolean','integer','double','string'];
     }
 
+    /**
+     * @return string
+     */
     public function getAllowedTypesAsString(): string
     {
         return trim(implode(', ', $this->getAllowedTypesArray()));
     }
 
+    /**
+     * @param array $argumentsArray
+     * @return bool
+     */
     public function areAllArgumentsString(array $argumentsArray): bool
     {
         foreach($argumentsArray as $argument){
-            if(gettype($argument)!== 'string'){
+            if(gettype($argument) !== 'string'){
                 return false;
             }
         }
