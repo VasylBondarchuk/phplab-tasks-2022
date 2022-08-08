@@ -62,7 +62,7 @@ class Functions
      */
     public function sayHelloArgumentWrapper($arg): string
     {
-        if(!in_array(gettype($arg), $this->getAllowedTypesArray())){
+        if(!$this->isInputTypeAllowed($arg)){
             throw new InvalidArgumentException(
                 'Only '. $this->getAllowedTypesAsString() . ' are allowed. Input type was: ' . gettype($arg)
             );
@@ -135,5 +135,14 @@ class Functions
             }
         }
         return true;
+    }
+
+    /**
+     * @param $arg
+     * @return bool
+     */
+    public function isInputTypeAllowed($arg): bool
+    {
+        return in_array(gettype($arg), $this->getAllowedTypesArray());
     }
 }
