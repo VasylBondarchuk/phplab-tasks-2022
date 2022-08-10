@@ -21,6 +21,9 @@ namespace functions;
 
 use InvalidArgumentException;
 
+/**
+ *
+ */
 class Functions
 {
     /**
@@ -59,7 +62,7 @@ class Functions
      */
     public function sayHelloArgumentWrapper($arg): string
     {
-        if(!in_array(gettype($arg), $this->getAllowedTypesArray())){
+        if(!$this->isInputTypeAllowed($arg)){
             throw new InvalidArgumentException(
                 'Only '. $this->getAllowedTypesAsString() . ' are allowed. Input type was: ' . gettype($arg)
             );
@@ -104,23 +107,42 @@ class Functions
         return $this->countArguments(...$argumentsArray);
     }
 
+    /**
+     * @return string[]
+     */
     public function getAllowedTypesArray(): array
     {
         return ['boolean','integer','double','string'];
     }
 
+    /**
+     * @return string
+     */
     public function getAllowedTypesAsString(): string
     {
         return trim(implode(', ', $this->getAllowedTypesArray()));
     }
 
+    /**
+     * @param array $argumentsArray
+     * @return bool
+     */
     public function areAllArgumentsString(array $argumentsArray): bool
     {
         foreach($argumentsArray as $argument){
-            if(gettype($argument)!== 'string'){
+            if(gettype($argument) !== 'string'){
                 return false;
             }
         }
         return true;
+    }
+
+    /**
+     * @param $arg
+     * @return bool
+     */
+    public function isInputTypeAllowed($arg): bool
+    {
+        return in_array(gettype($arg), $this->getAllowedTypesArray());
     }
 }

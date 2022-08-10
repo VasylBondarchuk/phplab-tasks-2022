@@ -2,12 +2,20 @@
 
 namespace arrays;
 
+/**
+ *
+ */
 class Arrays implements ArraysInterface
 {
+
     //sub array keys' names
     const NAME_KEY = 'name';
     const TAGS_KEY = 'tags';
 
+    /**
+     * @param array $input
+     * @return array
+     */
     public function repeatArrayValues(array $input): array
     {
         $result = [];
@@ -21,6 +29,10 @@ class Arrays implements ArraysInterface
         return $result;
     }
 
+    /**
+     * @param array $input
+     * @return int
+     */
     public function getUniqueValue(array $input): int
     {
         $unique = [];
@@ -33,6 +45,10 @@ class Arrays implements ArraysInterface
         return $unique ? min($unique) : 0;
     }
 
+    /**
+     * @param array $input
+     * @return array
+     */
     public function groupByTag(array $input): array
     {
         $groupByTag = [];
@@ -48,6 +64,10 @@ class Arrays implements ArraysInterface
         return $groupByTag;
     }
 
+    /**
+     * @param array $input
+     * @return array
+     */
     public function getSortedTagNamesList(array $input): array
     {
         $tagsList = [];
