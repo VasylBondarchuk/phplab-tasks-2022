@@ -8,12 +8,8 @@ use PHPUnit\Framework\TestCase;
 class GetUniqueFirstLettersTest extends TestCase
 {
 
-    /**
-     * Directory separator constant shorter version
-     *
-     */
     const DS = DIRECTORY_SEPARATOR;
-    const INCLUDE_FILE_RELATIVE_PATH = self::DS .'src'. self::DS . 'web'. self::DS .'functions.php';
+    const REL_PATH_TO_FILES = self::DS . 'src' . self::DS . 'web' . self::DS;
 
     /**
      * @return void
@@ -24,9 +20,14 @@ class GetUniqueFirstLettersTest extends TestCase
         $this->assertEquals($expectedResult, $this->getActualResult());
     }
 
+    /**
+     * @return array
+     */
     private function getActualResult(): array
     {
-        require_once(getcwd() . self::INCLUDE_FILE_RELATIVE_PATH);
-        return getUniqueFirstLetters(getAirports());
+        $path = getcwd() . self::REL_PATH_TO_FILES;
+        require_once($path . './functions.php');
+        $airports =  require_once($path . './airports.php');
+        return getUniqueFirstLetters($airports);
     }
 }

@@ -23,12 +23,3 @@ function getUniqueFirstLetters(array $airports): array
     sort($airportsNamesFirstLetters);
     return $airportsNamesFirstLetters;
 }
-
-/**
- * @return array
- */
-function getAirports(): array
-{
-    return include_once('airports.php');
-}
-
