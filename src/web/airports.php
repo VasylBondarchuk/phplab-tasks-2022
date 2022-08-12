@@ -3200,12 +3200,4 @@ return [
         "address" => "555 N General Brees Rd, Laramie, WY 82070, USA",
         "timezone" => "America/Denver",
     ],
-    [
-        "name" => "Albuquerque Sunport International Airport",
-        "code" => "ABQ",
-        "city" => "Albuquerque",
-        "state" => "New Mexico",
-        "address" => "2200 Sunport Blvd, Albuquerque, NM 87106, USA",
-        "timezone" => "America/Los_Angeles",
-    ],
 ];
