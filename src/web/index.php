@@ -2,49 +2,6 @@
 require_once './functions.php';
 $airports = require './airports.php';
 
-const PAGE_SIZE = 5;
-const PAGE_QTY_AOUND_ACTIVE = 10;
-
-$pagesQty = (int)ceil(count($airports)/PAGE_SIZE);
-
-/**
- * @param int $pageNum
- * @return string
- */
-function getPageNumberLinkClass(int $pageNum):string
-{
-    return $pageNum === getActivePageNumber() ? "page-item active" : "page-item";
-}
-
-/**
- * @return int
- */
-function getActivePageNumber():int
-{
-    return $_GET['page'] ?? 1;
-}
-
-/**
- * @return int
- */
-function getStartPage(): int
-{
-    return (getActivePageNumber() - PAGE_QTY_AOUND_ACTIVE) <= 1 ? 1
-        : getActivePageNumber() - PAGE_QTY_AOUND_ACTIVE;
-}
-
-/**
- * @param $pagesQty
- * @return int
- */
-function getFinishPage($pagesQty): int
-{
-    return (getActivePageNumber() + PAGE_QTY_AOUND_ACTIVE) > $pagesQty ? $pagesQty
-        : getActivePageNumber() + PAGE_QTY_AOUND_ACTIVE;
-}
-
-
-
 // Filtering
 /**
  * Here you need to check $_GET request if it has any filtering
@@ -52,57 +9,18 @@ function getFinishPage($pagesQty): int
  * (see Filtering tasks 1 and 2 below)
  */
 
-if(isset($_GET['filter_by_first_letter'])){
-    $airports =  array_filter($airports,"filterAirportsByFirstLetter");
-}
+$airports = filterByState(filterByFirstLetter($airports));
+$airports = sortingAirports($airports);
+$airports = filterByPage($airports);
 
-// Sorting
-/**
- * Here you need to check $_GET request if it has sorting key
- * and apply sorting
- * (see Sorting task below)
- */
-if(isset($_GET['sorting']) && isset($_GET['order'])){
-    if($_GET['order'] == 'asc'){
-        /**
-         * @param $a
-         * @param $b
-         * @return int
-         */
-        function mySort($a, $b): int
-        {
-            if ($a[$_GET['sorting']] == $b[$_GET['sorting']]) return 0;
-            return ($a[$_GET['sorting']] < $b[$_GET['sorting']]) ? -1 : 1;
-        }
-        usort($airports,"mySort");
-    }
-
-    if($_GET['order'] == 'desc'){
-        /**
-         * @param $a
-         * @param $b
-         * @return int
-         */
-        function mySort($a, $b): int
-        {
-            if ($a[$_GET['sorting']] == $b[$_GET['sorting']]) return 0;
-            return ($a[$_GET['sorting']] > $b[$_GET['sorting']]) ? -1 : 1;
-        }
-        usort($airports,"mySort");
-    }
-}
 // Pagination
 /**
+ *
  * Here you need to check $_GET request if it has pagination key
  * and apply pagination logic
  * (see Pagination task below)
  */
 
-function getAirportNumber(array $airport, array $airports): int
-{
-    return (int)(array_search($airport,$airports));
-}
-//print_r($_SERVER['QUERY_STRING']);
 ?>
 
 <!doctype html>
@@ -120,7 +38,7 @@ function getAirportNumber(array $airport, array $airports): int
 
     <h1 class="mt-5">US Airports</h1>
 
-    <!--
+   <!--
         Filtering task #1
         Replace # in HREF attribute so that link follows to the same page with the filter_by_first_letter key
         i.e. /?filter_by_first_letter=A or /?filter_by_first_letter=B
@@ -138,7 +56,7 @@ function getAirportNumber(array $airport, array $airports): int
             <a href="<?=getFilteringByFirstLetterUrl($letter);?>"><?= $letter ?></a>
         <?php endforeach; ?>
 
-        <a href="<?=resetFilters();?>" class="float-right">Reset all filters</a>
+        <a href="<?=resetAllFilters();?>" class="float-right">Reset all filters</a>
     </div>
 
     <!--
@@ -151,6 +69,7 @@ function getAirportNumber(array $airport, array $airports): int
            i.e. if you already have /?page=2&filter_by_first_letter=A after applying sorting the url should looks like
            /?page=2&filter_by_first_letter=A&sort=name
     -->
+
     <table class="table">
         <thead>
         <tr>
@@ -164,6 +83,9 @@ function getAirportNumber(array $airport, array $airports): int
         </thead>
         <tbody>
 
+        <?php
+
+        ?>
 
         <!--
             Filtering task #2
@@ -175,28 +97,7 @@ function getAirportNumber(array $airport, array $airports): int
              - when you apply filter_by_state, than filter_by_first_letter (see Filtering task #1) is not reset
                i.e. if you have filter_by_first_letter set you can additionally use filter_by_state
         -->
-        <?php
-        if(isset($_GET['filter_by_state'])){
-            $airports =  array_filter($airports,"filterAirportsByState");
-        }
-        ?>
 
-        <?php
-        if(isset($_GET['page'])){
-            $airports = array_values($airports);
-            $airports =  array_filter(/**
-             * @param $airport
-             * @return mixed|void
-             */ $airports, function($airport) use ($airports) {
-                if((intdiv(getAirportNumber($airport, $airports),5) >= $_GET['page'] - 1) && (intdiv(getAirportNumber($airport, $airports),5) < $_GET['page'])) {
-                    return $airport;
-                }
-            }
-            );
-        }
-        //echo "<br/><br/>";
-        //print_r($airports);
-        ?>
 
         <?php foreach ($airports as $airport): ?>
             <tr>
@@ -220,22 +121,28 @@ function getAirportNumber(array $airport, array $airports): int
          - use page key (i.e. /?page=1)
          - when you apply pagination - all filters and sorting are not reset
     -->
+    <?php if($airports): ?>
 
+    <!-- Bottom pagination -->
     <nav aria-label="Navigation">
         <ul class="pagination justify-content-center">
          <li class="page-item">
-                <a class="page-link" href="<?= getPagingUrl(1);?>"> <?= '<<<' ?></a>
+                <a class="page-link" href="<?= getPageNumberUrl(1);?>"> <?= '<<<' ?></a>
          </li>
-        <?php foreach(range(getStartPage(),getFinishPage($pagesQty)) as $pageNum): ?>
+        <?php foreach(getDisplayedPagesRange() as $pageNum): ?>
         <li class="<?= getPageNumberLinkClass($pageNum); ?>">
-            <a class="page-link" href="<?= getPagingUrl($pageNum);?>"> <?= $pageNum; ?></a>
+            <a class="page-link" href="<?= getPageNumberUrl($pageNum);?>"> <?= $pageNum; ?></a>
         </li>
         <?php endforeach; ?>
             <li class="page-item">
-                <a class="page-link" href="<?= getPagingUrl($pagesQty);?>"> <?= ">>>" ?></a>
+                <a class="page-link" href="<?= getPageNumberUrl(getPagesQty($airports));?>"> <?= ">>>" ?></a>
             </li>
         </ul>
     </nav>
+
+    <?php else: echo "There no data corresponding to your request"; ?>
+    <?php endif; ?>
+
 
 </main>
 </html>
