@@ -14,13 +14,37 @@
 
 namespace src\oop\app\src\Models;
 
+/**
+ *
+ */
 class Movie implements MovieInterface
 {
+    /**
+     * @var string
+     */
     private string $title;
 
+    /**
+     * @var string
+     */
     private string $poster;
 
+    /**
+     * @var string
+     */
     private string $description;
+
+    /**
+     * @param string $title
+     * @param string $poster
+     * @param string $description
+     */
+    public function __construct(string $title, string $poster, string $description)
+    {
+        $this->title = $title;
+        $this->poster = $poster;
+        $this->description = $description;
+    }
 
     /**
      * @return string

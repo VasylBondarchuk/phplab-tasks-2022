@@ -1,7 +1,7 @@
 <?php
 /**
  * Create two Classes - GuzzleAdapter and CurlStrategy.
- * Implement the TransportInterface and following methods:
+ * Implement the src/oop/app/src/Parsers/ParserInterface.php and following methods:
  * getContent() - should return site page content.
  *
  * For Class GuzzleAdapter use GuzzleHttp Client for getting the page content.

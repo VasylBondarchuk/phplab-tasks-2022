@@ -19,15 +19,29 @@
 
 namespace src\oop\app\src\Parsers;
 
+use src\oop\app\src\Transporters\TransportInterface;
+
 class FilmixParserStrategy implements ParserInterface
 {
+    private TransportInterface $curlStrategy;
+
+    /**
+     * @param TransportInterface $curlStrategy
+     */
+    public function __construct(TransportInterface $curlStrategy)
+    {
+        $this->curlStrategy = $curlStrategy;
+    }
+
     /**
      * @param string $siteContent
      * @return mixed
      */
     public function parseContent(string $siteContent)
     {
-
+        $content = $this->curlStrategy->getContent('https://filmix.ac/filmi/triller/151413-lost-ledyanoy-drayv-2021.html');
+        //echo $content;exit;
+        return $content;
 
     }
 }
