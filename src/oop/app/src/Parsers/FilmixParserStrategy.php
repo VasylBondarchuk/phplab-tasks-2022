@@ -25,9 +25,21 @@ class FilmixParserStrategy implements ParserInterface
      * @param string $siteContent
      * @return mixed
      */
-    public function parseContent(string $siteContent)
+    public function parseContent(string $siteContent) : array
     {
+        $names = ['title' => 'titleTag','description' => 'descriptionTag','poster' => 'posterTag'];
+        $parsedContent = [];
+        foreach($names as $name =>$tagName){
+            $parsedContent[$name] = $this->getTextBetweenTags($siteContent, $names[$tagName]);
+        }
+        return $parsedContent;
+    }
 
 
+    private function getTextBetweenTags(string $string, string $tagname)
+    {
+        $pattern = "/<$tagname ?.*>(.*)<\/$tagname>/";
+        preg_match($pattern, $string, $matches);
+        return $matches[1];
     }
 }

@@ -3,8 +3,11 @@
 require '../../../vendor/autoload.php';
 
 use src\oop\app\src\ScrapperFactory;
+use src\oop\app\src\Parsers\FilmixParserStrategy;
+use src\oop\app\src\Transporters\CurlStrategy;
 
 ?>
+
 
 <!doctype html>
 <html lang="en">
@@ -37,22 +40,14 @@ use src\oop\app\src\ScrapperFactory;
 
 $scrapperFactory = new ScrapperFactory();
 
-$filmixMovie = $scrapperFactory->create('filmix')->getMovie('https://filmix.ac/filmi/triller/151413-lost-ledyanoy-drayv-2021.html');
-$kinoukrMovie = $scrapperFactory->create('kinoukr')->getMovie('https://kinoukr.com/4166-pravdyva-istoriya-bandy-kelli.html');
+//$filmixMovie = $scrapperFactory->create('filmix')->getMovie('https://filmix.ac/filmi/triller/151413-lost-ledyanoy-drayv-2021.html');
+//$kinoukrMovie = $scrapperFactory->create('kinoukr')->getMovie('https://kinoukr.com/4166-pravdyva-istoriya-bandy-kelli.html');
 
+$filmixStrategy = new FilmixParserStrategy();
+$curlStrategy = new CurlStrategy();
+$content = $filmixStrategy->parseContent($curlStrategy->getContent('https://github.com/'));
+print_r($content);
 ?>
-<div class="container">
-    <div class="film">
-        <h1><?= $filmixMovie->getTitle(); ?></h1>
-        <img src="<?= $filmixMovie->getPoster(); ?>" alt="Poster"/>
-        <p><?= $filmixMovie->getDescription(); ?></p>
-    </div>
-    <div class="film">
-        <h1><?= $kinoukrMovie->getTitle(); ?></h1>
-        <img src="<?= $kinoukrMovie->getPoster(); ?>" alt="Poster"/>
-        <p><?= $kinoukrMovie->getDescription(); ?></p>
-    </div>
-</div>
 
 </body>
 </html>

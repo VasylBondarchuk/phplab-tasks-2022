@@ -19,6 +19,8 @@
 
 namespace src\oop\app\src\Parsers;
 
+use Symfony\Component\DomCrawler\Crawler;
+
 class KinoukrDomCrawlerParserAdapter implements ParserInterface
 {
     /**
