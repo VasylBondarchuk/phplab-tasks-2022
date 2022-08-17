@@ -21,10 +21,7 @@ class Arrays implements ArraysInterface
         $result = [];
         foreach($input as $el)
         {
-            for($i = 0; $i < abs($el); $i++)
-            {
-                $result[] = $el;
-            }
+            $result = array_merge($result, array_fill(0, $el, $el));
         }
         return $result;
     }
@@ -52,31 +49,13 @@ class Arrays implements ArraysInterface
     public function groupByTag(array $input): array
     {
         $groupByTag = [];
-        foreach($this->getSortedTagNamesList($input) as $tagName)
-        {
-            foreach($input as $row){
-                if (in_array($tagName, $row[self::TAGS_KEY])){
-                    $groupByTag[$tagName][] = $row[self::NAME_KEY];
-                    sort($groupByTag[$tagName]);
-                }
+        foreach($input as $row) {
+            foreach ($row[self::TAGS_KEY] as $tag) {
+                $groupByTag[$tag][] = $row[self::NAME_KEY];
+                sort($groupByTag[$tag]);
             }
         }
+        ksort($groupByTag);
         return $groupByTag;
-    }
-
-    /**
-     * @param array $input
-     * @return array
-     */
-    public function getSortedTagNamesList(array $input): array
-    {
-        $tagsList = [];
-        foreach(array_column($input, self::TAGS_KEY) as $tags)
-        {
-            $tagsList = array_merge($tagsList, $tags);
-        }
-        $tagsList = array_unique($tagsList);
-        sort($tagsList);
-        return $tagsList;
     }
 }
