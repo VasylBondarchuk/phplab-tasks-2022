@@ -39,7 +39,10 @@ class Movie implements MovieInterface
      * @param string $poster
      * @param string $description
      */
-    public function __construct(string $title, string $poster, string $description)
+    public function __construct(
+        string $title = 'Default Title',
+        string $poster = 'Default Poster',
+        string $description = 'Default Description')
     {
         $this->title = $title;
         $this->poster = $poster;

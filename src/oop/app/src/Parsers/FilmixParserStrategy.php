@@ -19,29 +19,27 @@
 
 namespace src\oop\app\src\Parsers;
 
-use src\oop\app\src\Transporters\TransportInterface;
-
 class FilmixParserStrategy implements ParserInterface
 {
-    private TransportInterface $curlStrategy;
-
-    /**
-     * @param TransportInterface $curlStrategy
-     */
-    public function __construct(TransportInterface $curlStrategy)
-    {
-        $this->curlStrategy = $curlStrategy;
-    }
-
     /**
      * @param string $siteContent
      * @return mixed
      */
-    public function parseContent(string $siteContent)
+    public function parseContent(string $siteContent) : array
     {
-        $content = $this->curlStrategy->getContent('https://filmix.ac/filmi/triller/151413-lost-ledyanoy-drayv-2021.html');
-        //echo $content;exit;
-        return $content;
+        $names = ['title' => 'titleTag','description' => 'descriptionTag','poster' => 'posterTag'];
+        $parsedContent = [];
+        foreach($names as $name =>$tagName){
+            $parsedContent[$name] = $this->getTextBetweenTags($siteContent, $names[$tagName]);
+        }
+        return $parsedContent;
+    }
 
+
+    private function getTextBetweenTags(string $string, string $tagname)
+    {
+        $pattern = "/<$tagname ?.*>(.*)<\/$tagname>/";
+        preg_match($pattern, $string, $matches);
+        return $matches[1];
     }
 }

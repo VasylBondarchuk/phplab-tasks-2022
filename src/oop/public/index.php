@@ -3,6 +3,7 @@
 require '../../../vendor/autoload.php';
 
 use src\oop\app\src\ScrapperFactory;
+use src\oop\app\src\Parsers\FilmixParserStrategy;
 use src\oop\app\src\Transporters\CurlStrategy;
 
 ?>
@@ -42,9 +43,10 @@ $scrapperFactory = new ScrapperFactory();
 //$filmixMovie = $scrapperFactory->create('filmix')->getMovie('https://filmix.ac/filmi/triller/151413-lost-ledyanoy-drayv-2021.html');
 //$kinoukrMovie = $scrapperFactory->create('kinoukr')->getMovie('https://kinoukr.com/4166-pravdyva-istoriya-bandy-kelli.html');
 
-$strategy = new CurlStrategy();
-$content = $strategy->getContent('https://filmix.ac/filmi/triller/151413-lost-ledyanoy-drayv-2021.html');
-echo $content;exit;
+$filmixStrategy = new FilmixParserStrategy();
+$curlStrategy = new CurlStrategy();
+$content = $filmixStrategy->parseContent($curlStrategy->getContent('https://github.com/'));
+print_r($content);
 ?>
 
 </body>
