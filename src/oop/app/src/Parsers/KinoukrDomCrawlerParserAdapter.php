@@ -19,6 +19,8 @@
 
 namespace src\oop\app\src\Parsers;
 
+use src\oop\app\src\Models\Movie;
+use src\oop\app\src\Models\MovieInterface;
 use Symfony\Component\DomCrawler\Crawler;
 
 class KinoukrDomCrawlerParserAdapter implements ParserInterface
@@ -27,7 +29,73 @@ class KinoukrDomCrawlerParserAdapter implements ParserInterface
      * @param string $siteContent
      * @return mixed
      */
-    public function parseContent(string $siteContent){
+    public function parseContent(string $siteContent) : MovieInterface
+    {
+        $siteContent = $this->convertToUTF8($siteContent);
+        $movie = new Movie();
+        foreach($movie->getPropertiesNames() as $paramName){
+            $movie->set($paramName, $this->parse($paramName, $siteContent));
+        }
+        return $movie;
+    }
 
+    /**
+     * Abstract parser
+     *
+     * @param string $movieParamName
+     * @param string $siteContent
+     * @return mixed
+     */
+    private function parse(string $movieParamName, string $siteContent): mixed
+    {
+        $parserName = 'parse' . ucfirst($movieParamName);
+        return $this->$parserName($siteContent);
+    }
+
+    /**
+     * @param string $string
+     * @return mixed
+     */
+    public function parseTitle(string $html)
+    {
+        $crawler = new Crawler($html);
+        $html = $crawler->filter('h1.name')->first()->html();
+        return $html ?? Movie::DEFAULT_TITLE;
+    }
+
+    /**
+     * @param string $html
+     * @return mixed
+     */
+    private function parseDescription(string $html) : string
+    {
+        $crawler = new Crawler($html);
+        $html = $crawler->filter('div.full-story')->first()->html();
+        return $html ?? Movie::DEFAULT_DESCRIPTION;
+    }
+
+    /**
+     * @param string $string
+     * @return mixed
+     */
+    private function parsePoster(string $html) : string
+    {
+        $tagname = 'a';
+        $attributesValues ='class="fancybox" rel="group" href="';
+        $crawler = new Crawler($html);
+        $html = $crawler->filter('a.fancybox')->first()->html();
+        return $html ?? Movie::DEFAULT_POSTER;
+    }
+
+    /**
+     * @param string $string
+     * @return string
+     */
+    private function convertToUTF8(string $string) : string
+    {
+        return mb_convert_encoding(
+            $string,
+            'UTF-8',
+            mb_detect_encoding($string, 'UTF-8, windows-1251'));
     }
 }

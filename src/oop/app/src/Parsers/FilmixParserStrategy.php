@@ -13,7 +13,7 @@
  *
  * For Class FilmixParserStrategy use simple PHP methods without any library for parsing page content.
  * Note: Use next namespace for FilmixParserStrategy Class - "namespace src\oop\app\src\Parsers;" (Like in this Interface)
- * Note: For this Parser (for example) you can user regular expression.
+ * Note: For this Parser (for example) you can use regular expression.
  * Attention: Think about why this Parser might have a Strategy word in name!!!
  */
 
@@ -64,7 +64,7 @@ class FilmixParserStrategy implements ParserInterface
         $attributesValues = 'class="name" itemprop="name"';
         $pattern = "/<$tagname $attributesValues ?.*>(.*)<\/$tagname>/";
         preg_match($pattern, $string, $matches);
-        return $matches[0];
+        return $matches[0] ?? Movie::DEFAULT_TITLE;
     }
 
     /**
@@ -77,7 +77,7 @@ class FilmixParserStrategy implements ParserInterface
         $attributesValues ='class="full-story"';
         $pattern = "/<$tagname $attributesValues ?.*>(.*)<\/$tagname>/";
         preg_match($pattern, $string, $matches);
-        return $matches[0];
+        return $matches[0] ?? Movie::DEFAULT_DESCRIPTION;
     }
 
     /**
@@ -90,11 +90,11 @@ class FilmixParserStrategy implements ParserInterface
         $attributesValues ='class="fancybox" rel="group" href="';
         $pattern = "/<$tagname $attributesValues(.*).\"*>/";
         preg_match($pattern, $string,$matches);
-        return $matches[1];
+        return $matches[1] ?? Movie::DEFAULT_POSTER;
     }
 
     /**
-     * @param string $siteContent
+     * @param string $string
      * @return string
      */
     private function convertToUTF8(string $string) : string

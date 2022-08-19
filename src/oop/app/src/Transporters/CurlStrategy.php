@@ -2,9 +2,19 @@
 
 namespace src\oop\app\src\Transporters;
 
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
+
+/**
+ *
+ */
 class CurlStrategy implements TransportInterface
 {
 
+    /**
+     * @param string $url
+     * @return string
+     */
     public function getContent(string $url): string
     {
         // is cURL installed yet?
@@ -37,7 +47,6 @@ class CurlStrategy implements TransportInterface
 
         // Close the cURL resource, and free system resources
         curl_close($ch);
-        //echo htmlspecialchars($output);exit;
 
         return $output;
     }

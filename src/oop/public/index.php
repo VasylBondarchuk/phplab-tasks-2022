@@ -5,8 +5,8 @@ ini_set('display_errors', '1');
 
 require '../../../vendor/autoload.php';
 
+use src\oop\app\src\Parsers\KinoukrDomCrawlerParserAdapter;
 use src\oop\app\src\ScrapperFactory;
-
 ?>
 
 <!doctype html>
@@ -39,10 +39,17 @@ use src\oop\app\src\ScrapperFactory;
 <?php
 
 $scrapperFactory = new ScrapperFactory();
+$guzzle = new \src\oop\app\src\Transporters\GuzzleAdapter();
+$content = $guzzle->getContent('https://github.com');
+//echo htmlspecialchars($content);exit;
+$kinoukrDomCrawlerParserAdapter = new KinoukrDomCrawlerParserAdapter();
+$html = $kinoukrDomCrawlerParserAdapter->parseTitle($content);
+print_r($html);exit;
 
 $filmixMovie = $scrapperFactory->create('filmix')->getMovie('https://filmix.ac/filmi/triller/151413-20022-ledyanoy-drayv-2021.html');
 $filmixMovie = $scrapperFactory->create('filmix')
     ->getMovie('https://filmix.ac/filmi/triller/151413-20022-ledyanoy-drayv-2021.html');
+
 //$kinoukrMovie = $scrapperFactory->create('kinoukr')->getMovie('https://kinoukr.com/4166-pravdyva-istoriya-bandy-kelli.html');
 
 
