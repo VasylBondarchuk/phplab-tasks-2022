@@ -19,18 +19,10 @@ namespace src\oop\app\src\Models;
  */
 class Movie implements MovieInterface
 {
-    /**
-     *
-     */
     const DEFAULT_TITLE = 'Default Movie Title';
-    /**
-     *
-     */
     const DEFAULT_POSTER = 'default-poster.jpg';
-    /**
-     *
-     */
     const DEFAULT_DESCRIPTION = 'Default Movie Description';
+
     /**
      * @var string
      */
