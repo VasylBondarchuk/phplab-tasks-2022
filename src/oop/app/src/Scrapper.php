@@ -60,15 +60,8 @@ class Scrapper
      */
     public function getMovie(string $url): Movieinterface
     {
-<<<<<<< HEAD
         return $this->getParserInterface()->parseContent(
             $this->getTransportInterface()->getContent($url)
         );
-=======
-        return $this->getParserInterface()
-            ->parseContent(
-                $this->getTransportInterface()->getContent($url)
-            );
->>>>>>> origin/master
     }
 }
