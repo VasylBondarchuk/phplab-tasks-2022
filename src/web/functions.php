@@ -10,43 +10,18 @@
  * @return string[]
  */
 
+
 const PAGE_SIZE = 5;
-/**
- *
- */
 const PAGE_QTY_AROUND_ACTIVE = 10;
-/**
- *
- */
 const DEFAULT_SORTING_ORDER = 'asc';
-/**
- *
- */
 const DEFAULT_SORTING_PARAM = 'name';
-/**
- *
- */
 const DEFAULT_PAGE_NUMBER = 1;
-/**
- *
- */
 const FILTER_BY_STATE_QUERY = 'filter_by_state';
-/**
- *
- */
 const FILTER_BY_FIRST_LETTER_QUERY = 'filter_by_first_letter';
-/**
- *
- */
 const SORTING_QUERY = 'sorting';
-/**
- *
- */
 const ORDER_QUERY = 'order';
-/**
- *
- */
 const PAGE_QUERY = 'page';
+
 
 /**
  * @param array $airports

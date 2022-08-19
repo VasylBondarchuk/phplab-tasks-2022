@@ -50,7 +50,11 @@ class FilmixParserStrategy implements ParserInterface
      */
     private function parse(string $movieParamName, string $siteContent): mixed
     {
+<<<<<<< HEAD
         $parserName = 'parse' . ucfirst($movieParamName);
+=======
+        $parserName = 'parse'.ucfirst($movieParamName);
+>>>>>>> origin/master
         return $this->$parserName($siteContent);
     }
 
