@@ -37,6 +37,7 @@ class CurlStrategy implements TransportInterface
 
         // Close the cURL resource, and free system resources
         curl_close($ch);
+        //echo htmlspecialchars($output);exit;
 
         return $output;
     }

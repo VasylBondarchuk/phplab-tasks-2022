@@ -11,14 +11,41 @@
  */
 
 const PAGE_SIZE = 5;
+/**
+ *
+ */
 const PAGE_QTY_AROUND_ACTIVE = 10;
+/**
+ *
+ */
 const DEFAULT_SORTING_ORDER = 'asc';
+/**
+ *
+ */
 const DEFAULT_SORTING_PARAM = 'name';
+/**
+ *
+ */
 const DEFAULT_PAGE_NUMBER = 1;
+/**
+ *
+ */
 const FILTER_BY_STATE_QUERY = 'filter_by_state';
+/**
+ *
+ */
 const FILTER_BY_FIRST_LETTER_QUERY = 'filter_by_first_letter';
+/**
+ *
+ */
 const SORTING_QUERY = 'sorting';
+/**
+ *
+ */
 const ORDER_QUERY = 'order';
+/**
+ *
+ */
 const PAGE_QUERY = 'page';
 
 /**
@@ -84,7 +111,7 @@ function filterByPage(array $airports): array
     if(isPaginationApplied()){
         $airports = array_values($airports);
         $airports =  array_filter($airports, function($airport) use ($airports) {
-            if(shouldAirportBeDisplayedOnThePage($airport, $airports)) {
+            if(shouldBeDisplayedOnActivePage($airport, $airports)) {
                 return $airport;
             }
         }
@@ -139,8 +166,8 @@ function customAirportSorting(array $airport1, array $airport2): int
  */
 function getSortingParam(): string
 {
-    return $_GET[SORTING_QUERY]
-        ? htmlspecialchars($_GET[SORTING_QUERY])
+    return isset($_GET[SORTING_QUERY])
+        ? filter_var($_GET[SORTING_QUERY], FILTER_SANITIZE_URL)
         : DEFAULT_SORTING_PARAM;
 }
 
@@ -244,6 +271,11 @@ function getFilteringByStateUrl(string $state): string
     return $url;
 }
 
+/**
+ * @param string $param
+ * @param string $queryName
+ * @return string
+ */
 function updateFilteringParam(string $param, string $queryName): string
 {
     return str_replace(
@@ -259,7 +291,9 @@ function updateFilteringParam(string $param, string $queryName): string
  */
 function getFilteringParamValue(string $filteringParam) : string
 {
-    return $_GET[$filteringParam] ? htmlspecialchars($_GET[$filteringParam]) :  '';
+    return isset($_GET[$filteringParam])
+        ?  filter_var($_GET[$filteringParam], FILTER_SANITIZE_URL)
+        :  '';
 }
 
 /**
@@ -287,7 +321,7 @@ function getAirportIndex(array $airport, array $airports): int
  * @param array $airports
  * @return bool
  */
-function shouldAirportBeDisplayedOnThePage(array $airport, array $airports): bool
+function shouldBeDisplayedOnActivePage(array $airport, array $airports): bool
 {
     return floor(getAirportIndex($airport, $airports) / PAGE_SIZE) == getActivePageNumber() - 1 ;
 }
@@ -330,10 +364,18 @@ function isPaginationApplied(): bool
 function getActivePageNumber(): int
 {
     $pageNumber = DEFAULT_PAGE_NUMBER;
-    if(isPaginationApplied() && in_array($_GET[PAGE_QUERY], getPagesRanges())){
-        $pageNumber = htmlspecialchars($_GET[PAGE_QUERY]);
+    if(isPaginationApplied() && isPageNumberValid()){
+        $pageNumber = filter_var($_GET[PAGE_QUERY], FILTER_SANITIZE_URL);
     }
     return $pageNumber;
+}
+
+/**
+ * @return bool
+ */
+function isPageNumberValid(): bool
+{
+    return in_array($_GET[PAGE_QUERY], getPagesRanges());
 }
 
 /**
@@ -388,6 +430,10 @@ function getPagesRanges(): array
     return range(1, getPagesQty());
 }
 
+/**
+ * @param array $airport
+ * @return string
+ */
 function getAirportName(array $airport) : string
 {
     return $airport['name'];

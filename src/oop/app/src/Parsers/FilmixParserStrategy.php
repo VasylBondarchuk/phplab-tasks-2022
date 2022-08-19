@@ -19,27 +19,89 @@
 
 namespace src\oop\app\src\Parsers;
 
+use src\oop\app\src\Models\Movie;
+use src\oop\app\src\Models\MovieInterface;
+
+/**
+ * Returns a parsed content of a webpage
+ */
 class FilmixParserStrategy implements ParserInterface
 {
     /**
      * @param string $siteContent
      * @return mixed
      */
-    public function parseContent(string $siteContent) : array
+    public function parseContent(string $siteContent) : MovieInterface
     {
-        $names = ['title' => 'titleTag','description' => 'descriptionTag','poster' => 'posterTag'];
-        $parsedContent = [];
-        foreach($names as $name =>$tagName){
-            $parsedContent[$name] = $this->getTextBetweenTags($siteContent, $names[$tagName]);
+        $siteContent = $this->convertToUTF8($siteContent);
+        $movie = new Movie();
+        foreach($movie->getPropertiesNames() as $paramName){
+            $movie->set($paramName, $this->parse($paramName, $siteContent));
         }
-        return $parsedContent;
+        return $movie;
     }
 
-
-    private function getTextBetweenTags(string $string, string $tagname)
+    /**
+     * Abstract parser
+     *
+     * @param string $movieParamName
+     * @param string $siteContent
+     * @return mixed
+     */
+    private function parse(string $movieParamName, string $siteContent): mixed
     {
-        $pattern = "/<$tagname ?.*>(.*)<\/$tagname>/";
+        $parserName = 'parse' . ucfirst($movieParamName);
+        return $this->$parserName($siteContent);
+    }
+
+    /**
+     * @param string $string
+     * @return mixed
+     */
+    private function parseTitle(string $string) : string
+    {
+        $tagname = 'h1';
+        $attributesValues = 'class="name" itemprop="name"';
+        $pattern = "/<$tagname $attributesValues ?.*>(.*)<\/$tagname>/";
         preg_match($pattern, $string, $matches);
+        return $matches[0];
+    }
+
+    /**
+     * @param string $string
+     * @return mixed
+     */
+    private function parseDescription(string $string) : string
+    {
+        $tagname = 'div';
+        $attributesValues ='class="full-story"';
+        $pattern = "/<$tagname $attributesValues ?.*>(.*)<\/$tagname>/";
+        preg_match($pattern, $string, $matches);
+        return $matches[0];
+    }
+
+    /**
+     * @param string $string
+     * @return mixed
+     */
+    private function parsePoster(string $string) : string
+    {
+        $tagname = 'a';
+        $attributesValues ='class="fancybox" rel="group" href="';
+        $pattern = "/<$tagname $attributesValues(.*).\"*>/";
+        preg_match($pattern, $string,$matches);
         return $matches[1];
+    }
+
+    /**
+     * @param string $siteContent
+     * @return string
+     */
+    private function convertToUTF8(string $string) : string
+    {
+        return mb_convert_encoding(
+            $string,
+            'UTF-8',
+            mb_detect_encoding($string, 'UTF-8, windows-1251'));
     }
 }

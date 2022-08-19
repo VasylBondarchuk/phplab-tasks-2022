@@ -18,7 +18,6 @@ use src\oop\app\src\Models\Movie;
 
 class Scrapper
 {
-
     /**
      * @var TransportInterface
      */
@@ -47,14 +46,6 @@ class Scrapper
     }
 
     /**
-     * @param TransportInterface $transportInterface
-     */
-    public function setTransportInterface(TransportInterface $transportInterface): void
-    {
-        $this->transportInterface = $transportInterface;
-    }
-
-    /**
      * @return ParserInterface
      */
     public function getParserInterface(): ParserInterface
@@ -62,13 +53,6 @@ class Scrapper
         return $this->parserInterface;
     }
 
-    /**
-     * @param ParserInterface $parserInterface
-     */
-    public function setParserInterface(ParserInterface $parserInterface): void
-    {
-        $this->parserInterface = $parserInterface;
-    }
 
     /**
      * @param string $url
@@ -76,16 +60,8 @@ class Scrapper
      */
     public function getMovie(string $url): Movieinterface
     {
-        $movie = new Movie();
-        $movie->setTitle($this->getMovieParamValue($url,'title'));
-        $movie->setDescription($this->getMovieParamValue($url,'description'));
-        $movie->setPoster($this->getMovieParamValue($url,'poster'));
-        return $movie;
-    }
-
-    private function getMovieParamValue(string $url, string $param)
-    {
-        return $this->getParserInterface()
-            ->parseContent($this->getTransportInterface()->getContent($url))[$param];
+        return $this->getParserInterface()->parseContent(
+            $this->getTransportInterface()->getContent($url)
+        );
     }
 }
