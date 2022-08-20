@@ -49,17 +49,17 @@ class KinoukrDomCrawlerParserAdapter implements ParserInterface
     private function parse(string $movieParamName, string $siteContent): mixed
     {
         $parserName = 'parse' . ucfirst($movieParamName);
-        return $this->$parserName($siteContent);
+        return strip_tags($this->$parserName($siteContent));
     }
 
     /**
-     * @param string $string
+     * @param string $html
      * @return mixed
      */
     public function parseTitle(string $html)
     {
         $crawler = new Crawler($html);
-        $html = $crawler->filter('h1.name')->first()->html();
+        $html = $crawler->filter('h1[itemprop="name"]')->first()->html();
         return $html ?? Movie::DEFAULT_TITLE;
     }
 
@@ -67,10 +67,10 @@ class KinoukrDomCrawlerParserAdapter implements ParserInterface
      * @param string $html
      * @return mixed
      */
-    private function parseDescription(string $html) : string
+    public function parseDescription(string $html) : string
     {
         $crawler = new Crawler($html);
-        $html = $crawler->filter('div.full-story')->first()->html();
+        $html = $crawler->filter('div.fdesc')->first()->html();
         return $html ?? Movie::DEFAULT_DESCRIPTION;
     }
 
@@ -78,13 +78,11 @@ class KinoukrDomCrawlerParserAdapter implements ParserInterface
      * @param string $string
      * @return mixed
      */
-    private function parsePoster(string $html) : string
+    public function parsePoster(string $html)
     {
-        $tagname = 'a';
-        $attributesValues ='class="fancybox" rel="group" href="';
         $crawler = new Crawler($html);
-        $html = $crawler->filter('a.fancybox')->first()->html();
-        return $html ?? Movie::DEFAULT_POSTER;
+        $html = $crawler->filter('a[data-fancybox="gallery"]')->attr('href');
+        return $html  ?? Movie::DEFAULT_POSTER;
     }
 
     /**

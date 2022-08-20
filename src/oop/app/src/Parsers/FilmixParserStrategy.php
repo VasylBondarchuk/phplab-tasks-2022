@@ -33,6 +33,7 @@ class FilmixParserStrategy implements ParserInterface
      */
     public function parseContent(string $siteContent) : MovieInterface
     {
+        //echo $siteContent; exit;
         $siteContent = $this->convertToUTF8($siteContent);
         $movie = new Movie();
         foreach($movie->getPropertiesNames() as $paramName){
@@ -51,7 +52,7 @@ class FilmixParserStrategy implements ParserInterface
     private function parse(string $movieParamName, string $siteContent): mixed
     {
         $parserName = 'parse' . ucfirst($movieParamName);
-        return $this->$parserName($siteContent);
+        return strip_tags($this->$parserName($siteContent));
     }
 
     /**

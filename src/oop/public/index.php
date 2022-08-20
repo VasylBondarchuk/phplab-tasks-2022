@@ -1,12 +1,11 @@
 <?php
-
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
 
 require '../../../vendor/autoload.php';
 
-use src\oop\app\src\Parsers\KinoukrDomCrawlerParserAdapter;
 use src\oop\app\src\ScrapperFactory;
+
 ?>
 
 <!doctype html>
@@ -39,30 +38,23 @@ use src\oop\app\src\ScrapperFactory;
 <?php
 
 $scrapperFactory = new ScrapperFactory();
-$guzzle = new \src\oop\app\src\Transporters\GuzzleAdapter();
-$content = $guzzle->getContent('https://github.com');
-//echo htmlspecialchars($content);exit;
-$kinoukrDomCrawlerParserAdapter = new KinoukrDomCrawlerParserAdapter();
-$html = $kinoukrDomCrawlerParserAdapter->parseTitle($content);
-print_r($html);exit;
 
 $filmixMovie = $scrapperFactory->create('filmix')->getMovie('https://filmix.ac/filmi/triller/151413-20022-ledyanoy-drayv-2021.html');
-$filmixMovie = $scrapperFactory->create('filmix')
-    ->getMovie('https://filmix.ac/filmi/triller/151413-20022-ledyanoy-drayv-2021.html');
-
-//$kinoukrMovie = $scrapperFactory->create('kinoukr')->getMovie('https://kinoukr.com/4166-pravdyva-istoriya-bandy-kelli.html');
-
+$kinoukrMovie = $scrapperFactory->create('kinoukr')->getMovie('https://kinoukr.com/4166-pravdyva-istoriya-bandy-kelli.html');
 
 ?>
-
 <div class="container">
     <div class="film">
         <h1><?= $filmixMovie->getTitle(); ?></h1>
         <img src="<?= $filmixMovie->getPoster(); ?>" alt="Poster"/>
         <p><?= $filmixMovie->getDescription(); ?></p>
     </div>
+    <div class="film">
+        <h1><?= $kinoukrMovie->getTitle(); ?></h1>
+        <img src="<?= $kinoukrMovie->getPoster(); ?>" alt="Poster"/>
+        <p><?= $kinoukrMovie->getDescription(); ?></p>
+    </div>
 </div>
-
 
 </body>
 </html>

@@ -53,7 +53,6 @@ class Scrapper
         return $this->parserInterface;
     }
 
-
     /**
      * @param string $url
      * @return Movie
