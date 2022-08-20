@@ -33,7 +33,6 @@ class FilmixParserStrategy implements ParserInterface
      */
     public function parseContent(string $siteContent) : MovieInterface
     {
-        //echo $siteContent; exit;
         $siteContent = $this->convertToUTF8($siteContent);
         $movie = new Movie();
         foreach($movie->getPropertiesNames() as $paramName){
@@ -65,7 +64,7 @@ class FilmixParserStrategy implements ParserInterface
         $attributesValues = 'class="name" itemprop="name"';
         $pattern = "/<$tagname $attributesValues ?.*>(.*)<\/$tagname>/";
         preg_match($pattern, $string, $matches);
-        return $matches[0] ?? Movie::DEFAULT_TITLE;
+        return $matches[0] ?? MovieInterface::DEFAULT_TITLE;
     }
 
     /**
@@ -78,7 +77,7 @@ class FilmixParserStrategy implements ParserInterface
         $attributesValues ='class="full-story"';
         $pattern = "/<$tagname $attributesValues ?.*>(.*)<\/$tagname>/";
         preg_match($pattern, $string, $matches);
-        return $matches[0] ?? Movie::DEFAULT_DESCRIPTION;
+        return $matches[0] ?? MovieInterface::DEFAULT_DESCRIPTION;
     }
 
     /**
@@ -91,7 +90,7 @@ class FilmixParserStrategy implements ParserInterface
         $attributesValues ='class="fancybox" rel="group" href="';
         $pattern = "/<$tagname $attributesValues(.*).\"*>/";
         preg_match($pattern, $string,$matches);
-        return $matches[1] ?? Movie::DEFAULT_POSTER;
+        return $matches[1] ?? MovieInterface::DEFAULT_POSTER;
     }
 
     /**

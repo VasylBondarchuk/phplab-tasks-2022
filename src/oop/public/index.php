@@ -1,11 +1,10 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', '1');
-
 require '../../../vendor/autoload.php';
 
-use src\oop\app\src\ScrapperFactory;
+use src\oop\app\src\Models\Movies;
 
+// array of Movies objects
+$movies = new Movies();
 ?>
 
 <!doctype html>
@@ -35,25 +34,14 @@ use src\oop\app\src\ScrapperFactory;
 </head>
 <body>
 
-<?php
-
-$scrapperFactory = new ScrapperFactory();
-
-$filmixMovie = $scrapperFactory->create('filmix')->getMovie('https://filmix.ac/filmi/triller/151413-20022-ledyanoy-drayv-2021.html');
-$kinoukrMovie = $scrapperFactory->create('kinoukr')->getMovie('https://kinoukr.com/4166-pravdyva-istoriya-bandy-kelli.html');
-
-?>
 <div class="container">
+<?php foreach ($movies->getAllMovies() as $movie): ?>
     <div class="film">
-        <h1><?= $filmixMovie->getTitle(); ?></h1>
-        <img src="<?= $filmixMovie->getPoster(); ?>" alt="Poster"/>
-        <p><?= $filmixMovie->getDescription(); ?></p>
+        <h1><?= $movie->getTitle(); ?></h1>
+        <img src="<?= $movie->getPoster(); ?>" alt="Poster"/>
+        <p><?= $movie->getDescription(); ?></p>
     </div>
-    <div class="film">
-        <h1><?= $kinoukrMovie->getTitle(); ?></h1>
-        <img src="<?= $kinoukrMovie->getPoster(); ?>" alt="Poster"/>
-        <p><?= $kinoukrMovie->getDescription(); ?></p>
-    </div>
+<?php endforeach; ?>
 </div>
 
 </body>

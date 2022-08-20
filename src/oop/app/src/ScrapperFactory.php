@@ -8,8 +8,14 @@ use src\oop\app\src\Transporters\CurlStrategy;
 use src\oop\app\src\Transporters\GuzzleAdapter;
 use Exception;
 
+/**
+ *
+ */
 class ScrapperFactory
 {
+    const FILMIX = 'filmix';
+    const KINOUKR = 'kinoukr';
+
     /**
      * @param string $domain
      * @return Scrapper
@@ -17,13 +23,10 @@ class ScrapperFactory
      */
     public function create(string $domain): Scrapper
     {
-        switch ($domain) {
-            case 'filmix':
-                return new Scrapper(new CurlStrategy(), new FilmixParserStrategy());
-            case 'kinoukr':
-                return new Scrapper(new GuzzleAdapter(), new KinoukrDomCrawlerParserAdapter());
-            default:
-                throw new Exception('Resource not found!');
-        }
+        return match ($domain) {
+            self::FILMIX  => new Scrapper(new CurlStrategy(), new FilmixParserStrategy()),
+            self::KINOUKR => new Scrapper(new GuzzleAdapter(), new KinoukrDomCrawlerParserAdapter()),
+            default => throw new Exception('Resource not found!'),
+        };
     }
 }

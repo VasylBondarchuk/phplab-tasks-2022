@@ -19,12 +19,17 @@
 
 namespace src\oop\app\src\Parsers;
 
+use Exception;
 use src\oop\app\src\Models\Movie;
 use src\oop\app\src\Models\MovieInterface;
 use Symfony\Component\DomCrawler\Crawler;
 
+/**
+ *
+ */
 class KinoukrDomCrawlerParserAdapter implements ParserInterface
 {
+
     /**
      * @param string $siteContent
      * @return mixed
@@ -33,8 +38,9 @@ class KinoukrDomCrawlerParserAdapter implements ParserInterface
     {
         $siteContent = $this->convertToUTF8($siteContent);
         $movie = new Movie();
+        $crawler = new Crawler($siteContent);
         foreach($movie->getPropertiesNames() as $paramName){
-            $movie->set($paramName, $this->parse($paramName, $siteContent));
+            $movie->set($paramName, $this->parse($paramName, $crawler));
         }
         return $movie;
     }
@@ -43,46 +49,61 @@ class KinoukrDomCrawlerParserAdapter implements ParserInterface
      * Abstract parser
      *
      * @param string $movieParamName
-     * @param string $siteContent
+     * @param Crawler $crawler
      * @return mixed
      */
-    private function parse(string $movieParamName, string $siteContent): mixed
+    private function parse(string $movieParamName, Crawler $crawler)
     {
         $parserName = 'parse' . ucfirst($movieParamName);
-        return strip_tags($this->$parserName($siteContent));
+        return strip_tags($this->$parserName($movieParamName, $crawler));
     }
 
     /**
-     * @param string $html
+     * @param string $movieParamName
+     * @param Crawler $crawler
      * @return mixed
      */
-    public function parseTitle(string $html)
+    public function parseTitle(string $movieParamName, Crawler $crawler)
     {
-        $crawler = new Crawler($html);
-        $html = $crawler->filter('h1[itemprop="name"]')->first()->html();
-        return $html ?? Movie::DEFAULT_TITLE;
+        $parsedHtml = MovieInterface::DEFAULT_TITLE;
+        try {
+            $parsedHtml  = $crawler->filter('h1[itemprop="name"]')->first()->html();
+        } catch (Exception $e) {
+            echo "Error of $movieParamName parsing: ",  $e->getMessage(). '<br>';
+        }
+        return $parsedHtml;
     }
 
     /**
-     * @param string $html
+     * @param string $movieParamName
+     * @param Crawler $crawler
      * @return mixed
      */
-    public function parseDescription(string $html) : string
+    public function parseDescription(string $movieParamName, Crawler $crawler) : string
     {
-        $crawler = new Crawler($html);
-        $html = $crawler->filter('div.fdesc')->first()->html();
-        return $html ?? Movie::DEFAULT_DESCRIPTION;
+        $parsedHtml = MovieInterface::DEFAULT_DESCRIPTION;
+        try {
+            $parsedHtml  = $crawler->filter('div.fdesc')->first()->html();
+        } catch (Exception $e) {
+            echo "Error of $movieParamName parsing: ",  $e->getMessage(). '<br>';
+        }
+        return $parsedHtml;
+
     }
 
     /**
-     * @param string $string
+     * @param Crawler $crawler
      * @return mixed
      */
-    public function parsePoster(string $html)
+    public function parsePoster(string $movieParamName, Crawler $crawler)
     {
-        $crawler = new Crawler($html);
-        $html = $crawler->filter('a[data-fancybox="gallery"]')->attr('href');
-        return $html  ?? Movie::DEFAULT_POSTER;
+        try {
+            $parsedHtml  = $crawler->filter('a[data-fancybox="gallery"]')->attr('href');
+        } catch (Exception $e) {
+            echo "Error of $movieParamName parsing: ",  $e->getMessage(). '<br>';
+            $parsedHtml = MovieInterface::DEFAULT_POSTER;
+        }
+        return $parsedHtml;
     }
 
     /**
