@@ -19,6 +19,9 @@
 
 namespace src\oop\app\src\Parsers;
 
+/**
+ *
+ */
 interface ParserInterface
 {
     /**

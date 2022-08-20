@@ -14,8 +14,15 @@
 
 namespace src\oop\app\src\Models;
 
+/**
+ *
+ */
 interface MovieInterface
 {
+    const DEFAULT_TITLE = 'Default Movie Title';
+    const DEFAULT_POSTER = 'default-poster.jpg';
+    const DEFAULT_DESCRIPTION = 'Default Movie Description';
+
     /**
      * @return string
      */

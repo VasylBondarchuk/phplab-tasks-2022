@@ -31,7 +31,10 @@ class Scrapper
      * @param TransportInterface $transportInterface
      * @param ParserInterface $parserInterface
      */
-    public function __construct(TransportInterface $transportInterface, ParserInterface $parserInterface)
+    public function __construct(
+        TransportInterface $transportInterface,
+        ParserInterface $parserInterface
+    )
     {
         $this->transportInterface = $transportInterface;
         $this->parserInterface = $parserInterface;

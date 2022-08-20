@@ -19,8 +19,12 @@
 
 namespace src\oop\app\src\Transporters;
 
+/**
+ *
+ */
 interface TransportInterface
 {
+    const DEFAULT_CONTENT = '';
     /**
      * @param string $url
      * @return string
