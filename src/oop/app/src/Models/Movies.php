@@ -59,7 +59,9 @@ class Movies
         if(file_exists($moviesDataFilepath)){
             $moviesUrls = include_once($moviesDataFilepath);
         }
-        else echo "File " . $moviesDataFilepath . " can not be opened or doesn't exist";
+        else {
+            echo "File " . $moviesDataFilepath . " can not be opened or doesn't exist";
+        }
         return $moviesUrls;
     }
 }

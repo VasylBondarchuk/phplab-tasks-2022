@@ -10,7 +10,6 @@
  * @return string[]
  */
 
-
 const PAGE_SIZE = 5;
 const PAGE_QTY_AROUND_ACTIVE = 10;
 const DEFAULT_SORTING_ORDER = 'asc';
@@ -21,7 +20,6 @@ const FILTER_BY_FIRST_LETTER_QUERY = 'filter_by_first_letter';
 const SORTING_QUERY = 'sorting';
 const ORDER_QUERY = 'order';
 const PAGE_QUERY = 'page';
-
 
 /**
  * @param array $airports
@@ -51,11 +49,8 @@ function getAirportNameFirstLetter(string $airportName): string
 function filterByFirstLetter($airports): mixed
 {
     if(isFilteringByFirstLetterApplied()){
-        $airports =  array_filter($airports, function($airport){
-            if(getAirportNameFirstLetter(getAirportName($airport))
-                == getFilteringParamValue(FILTER_BY_FIRST_LETTER_QUERY)) {
-                return $airport;
-            }
+        $airports =  array_filter($airports, function($airport){ if(getAirportNameFirstLetter($airport['name'])
+                == getFilteringParamValue(FILTER_BY_FIRST_LETTER_QUERY)) { return $airport; }
         });
     }
     return $airports;
@@ -68,10 +63,9 @@ function filterByFirstLetter($airports): mixed
 function filterByState($airports): mixed
 {
     if(isFilteringByStateApplied()){
-        $airports =  array_filter($airports,function($airport){
-            if($airport['state'] === $_GET[FILTER_BY_STATE_QUERY]) {
+        $airports =  array_filter($airports,function($airport){if($airport['state'] === $_GET[FILTER_BY_STATE_QUERY]){
                 return $airport;
-            }
+        }
         });
     }
     return $airports;
@@ -86,11 +80,8 @@ function filterByPage(array $airports): array
     if(isPaginationApplied()){
         $airports = array_values($airports);
         $airports =  array_filter($airports, function($airport) use ($airports) {
-            if(shouldBeDisplayedOnActivePage($airport, $airports)) {
-                return $airport;
-            }
-        }
-        );
+            if(shouldBeDisplayedOnActivePage($airport, $airports)) { return $airport; }
+        });
     }
     return $airports;
 }
@@ -141,8 +132,7 @@ function customAirportSorting(array $airport1, array $airport2): int
  */
 function getSortingParam(): string
 {
-    return isset($_GET[SORTING_QUERY])
-        ? filter_var($_GET[SORTING_QUERY], FILTER_SANITIZE_URL)
+    return isset($_GET[SORTING_QUERY]) ? filter_var($_GET[SORTING_QUERY],FILTER_SANITIZE_URL)
         : DEFAULT_SORTING_PARAM;
 }
 
@@ -154,18 +144,24 @@ function getOrderCode(): int
     return $_GET[ORDER_QUERY] == 'asc' ? 1 : -1;
 }
 
+function getUrl($data): string
+{
+    $pageNumber = isPaginationApplied() ? null : DEFAULT_PAGE_NUMBER;
+    $pageQuery = [PAGE_QUERY => $pageNumber];
+    $data = array_merge($pageQuery,$data);
+    return $_SERVER["REQUEST_URI"] . getQuerySymbol(). http_build_query($data);
+}
+
 /**
  * @param string $sortingParam
  * @return string
  */
 function getSortingUrl(string $sortingParam): string
 {
-    $url = $_SERVER["REQUEST_URI"] . getUrlSeparator() .
-        SORTING_QUERY . '=' . $sortingParam . '&' . ORDER_QUERY . '=' . DEFAULT_SORTING_ORDER;
+    $data = [SORTING_QUERY => $sortingParam, ORDER_QUERY =>  DEFAULT_SORTING_ORDER];
+    $url = getUrl($data);
     if(isSortingApplied()){
-        $url = getSortingParam() == $sortingParam
-            ? switchSortingOrder()
-            : switchSortingParameter($sortingParam);
+        $url = getSortingParam() == $sortingParam ? switchSortingOrder() : switchSortingParameter($sortingParam);
     }
     return $url;
 }
@@ -182,7 +178,8 @@ function switchSortingOrder(): string
  * @param string $sortingParam
  * @return string
  */
-function switchSortingParameter(string $sortingParam): string{
+function switchSortingParameter(string $sortingParam): string
+{
     return str_replace(getSortingParam(), $sortingParam, $_SERVER["REQUEST_URI"]);
 }
 
@@ -224,8 +221,8 @@ function isAnyRequestApplied(): bool
  */
 function getFilteringByFirstLetterUrl(string $firstLetter): string
 {
-    $url = $_SERVER['REQUEST_URI'] . getPaginationQuery() . '&' . FILTER_BY_FIRST_LETTER_QUERY . '=' . $firstLetter;
-
+    $data = [FILTER_BY_FIRST_LETTER_QUERY =>  $firstLetter];
+    $url = getUrl($data);
     if(isFilteringByFirstLetterApplied()){
         $url = updateFilteringParam($firstLetter,FILTER_BY_FIRST_LETTER_QUERY);
     }
@@ -238,10 +235,25 @@ function getFilteringByFirstLetterUrl(string $firstLetter): string
  */
 function getFilteringByStateUrl(string $state): string
 {
-    $url = $_SERVER['PHP_SELF'] . getPaginationQuery() . '&' . FILTER_BY_STATE_QUERY . '=' . $state;
-
+    $data = [FILTER_BY_STATE_QUERY =>  $state];
+    $url = getUrl($data);
     if(isFilteringByStateApplied()){
         $url = updateFilteringParam($state,FILTER_BY_STATE_QUERY);
+    }
+    return $url;
+}
+
+/**
+ * @param int $pageNumber
+ * @return string
+ */
+function getPageNumberUrl(int $pageNumber): string
+{
+
+    $data = [PAGE_QUERY =>  $pageNumber];
+    $url = getUrl($data);
+    if(isPaginationApplied()){
+        $url = updateFilteringParam($pageNumber, PAGE_QUERY);
     }
     return $url;
 }
@@ -253,11 +265,8 @@ function getFilteringByStateUrl(string $state): string
  */
 function updateFilteringParam(string $param, string $queryName): string
 {
-    return str_replace(
-        $queryName . '=' . getFilteringParamValue($queryName),
-        $queryName . '=' . $param,
-        $_SERVER['REQUEST_URI']
-    );
+    return str_replace($queryName . '=' . getFilteringParamValue($queryName),$queryName . '=' . $param,
+        $_SERVER['REQUEST_URI']);
 }
 
 /**
@@ -266,29 +275,15 @@ function updateFilteringParam(string $param, string $queryName): string
  */
 function getFilteringParamValue(string $filteringParam) : string
 {
-    return isset($_GET[$filteringParam])
-        ?  filter_var($_GET[$filteringParam], FILTER_SANITIZE_URL)
-        :  '';
+    return isset($_GET[$filteringParam]) ?  filter_var($_GET[$filteringParam], FILTER_SANITIZE_URL) :  '';
 }
 
 /**
  * @return string
  */
-function getPaginationQuery(): string
+function getQuerySymbol(): string
 {
-    return isFilteringByStateApplied()
-        ? ''
-        : '?' . PAGE_QUERY . '=1';
-}
-
-/**
- * @param array $airport
- * @param array $airports
- * @return int
- */
-function getAirportIndex(array $airport, array $airports): int
-{
-    return array_search($airport, $airports);
+    return isAnyRequestApplied()  ?  '&' : '?' ;
 }
 
 /**
@@ -298,20 +293,8 @@ function getAirportIndex(array $airport, array $airports): int
  */
 function shouldBeDisplayedOnActivePage(array $airport, array $airports): bool
 {
-    return floor(getAirportIndex($airport, $airports) / PAGE_SIZE) == getActivePageNumber() - 1 ;
-}
-
-/**
- * @param int $pageNumber
- * @return string
- */
-function getPageNumberUrl(int $pageNumber): string
-{
-    $url =  $_SERVER["REQUEST_URI"] . getUrlSeparator() . PAGE_QUERY . '=' . $pageNumber;
-    if(isPaginationApplied()){
-        $url = updateFilteringParam($pageNumber, PAGE_QUERY);
-    }
-    return $url;
+    $airportIndex = array_search($airport, $airports);
+    return floor($airportIndex / PAGE_SIZE) == getActivePageNumber() - 1 ;
 }
 
 /**
@@ -320,9 +303,7 @@ function getPageNumberUrl(int $pageNumber): string
  */
 function getPageNumberLinkClass(int $pageNum):string
 {
-    return $pageNum === getActivePageNumber()
-        ? "page-item active"
-        : "page-item";
+    return $pageNum === getActivePageNumber() ? "page-item active" : "page-item";
 }
 
 /**
@@ -350,7 +331,7 @@ function getActivePageNumber(): int
  */
 function isPageNumberValid(): bool
 {
-    return in_array($_GET[PAGE_QUERY], getPagesRanges());
+    return in_array($_GET[PAGE_QUERY], range(1, getPagesQty()));
 }
 
 /**
@@ -358,9 +339,7 @@ function isPageNumberValid(): bool
  */
 function getFirstDisplayedPage(): int
 {
-    return (getActivePageNumber() - PAGE_QTY_AROUND_ACTIVE) < 1
-        ? 1
-        : getActivePageNumber() - PAGE_QTY_AROUND_ACTIVE;
+    return (getActivePageNumber() - PAGE_QTY_AROUND_ACTIVE) < 1  ? 1 : getActivePageNumber() - PAGE_QTY_AROUND_ACTIVE;
 }
 
 /**
@@ -368,17 +347,8 @@ function getFirstDisplayedPage(): int
  */
 function getLastDisplayedPage(): int
 {
-    return (getActivePageNumber() + PAGE_QTY_AROUND_ACTIVE) > getPagesQty()
-        ? getPagesQty()
+    return (getActivePageNumber() + PAGE_QTY_AROUND_ACTIVE) > getPagesQty()  ? getPagesQty()
         : getActivePageNumber() + PAGE_QTY_AROUND_ACTIVE;
-}
-
-/**
- * @return int
- */
-function getFilteredAirportsQty(): int
-{
-    return count(filterByState(filterByFirstLetter(getAirportsRawData())));
 }
 
 /**
@@ -386,7 +356,9 @@ function getFilteredAirportsQty(): int
  */
 function getPagesQty(): int
 {
-    return (int)(ceil(getFilteredAirportsQty() / PAGE_SIZE));
+    $airports = require './airports.php';
+    $filteredAirportsQty = count(filterByState(filterByFirstLetter($airports)));
+    return (int)(ceil($filteredAirportsQty / PAGE_SIZE));
 }
 
 /**
@@ -395,39 +367,6 @@ function getPagesQty(): int
 function getDisplayedPagesRange(): array
 {
     return range(getFirstDisplayedPage(), getLastDisplayedPage());
-}
-
-/**
- * @return array
- */
-function getPagesRanges(): array
-{
-    return range(1, getPagesQty());
-}
-
-/**
- * @param array $airport
- * @return string
- */
-function getAirportName(array $airport) : string
-{
-    return $airport['name'];
-}
-
-/**
- * @return mixed
- */
-function getAirportsRawData() : array
-{
-    return require './airports.php';
-}
-
-/**
- * @return string
- */
-function getUrlSeparator(): string
-{
-    return isAnyRequestApplied() ? '&' : '?';
 }
 
 /**

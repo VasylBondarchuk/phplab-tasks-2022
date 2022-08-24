@@ -2,9 +2,10 @@
 
 namespace src\oop\app\src\Transporters;
 
-use Exception;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Psr7;
 
 /**
  *
@@ -22,8 +23,9 @@ class GuzzleAdapter implements TransportInterface
         try {
             $client = new Client();
             $content = $client->request('GET', $url)->getBody();
-        } catch (Exception $e) {
-            echo "Error of getting webpage $url content using GuzzleHttp: ",  $e->getMessage(). '<br>';
+        } catch (ClientException $e) {
+            echo Psr7\Message::toString($e->getRequest());
+            echo Psr7\Message::toString($e->getResponse());
         }
         return $content;
     }
