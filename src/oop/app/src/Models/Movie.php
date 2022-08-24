@@ -22,33 +22,17 @@ class Movie implements MovieInterface
     /**
      * @var string
      */
-    private string $title;
+    private string $title = self::DEFAULT_TITLE;
 
     /**
      * @var string
      */
-    private string $poster;
+    private string $poster = self::DEFAULT_POSTER;
 
     /**
      * @var string
      */
-    private string $description;
-
-    /**
-     * @param string $title
-     * @param string $poster
-     * @param string $description
-     */
-    public function __construct(
-        string $title = self::DEFAULT_TITLE,
-        string $poster = self::DEFAULT_POSTER,
-        string $description = self::DEFAULT_DESCRIPTION
-    )
-    {
-        $this->title = $title;
-        $this->poster = $poster;
-        $this->description = $description;
-    }
+    private string $description = self::DEFAULT_DESCRIPTION;
 
     /**
      * @return string
