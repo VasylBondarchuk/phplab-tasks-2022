@@ -29,7 +29,24 @@ foreach (require_once('../web/airports.php') as $item) {
         $cityId = $city['id'];
     }
 
-    // TODO States
+    // States
+    // To check if state with this name exists in the DB we need to SELECT it first
+    $sth = $pdo->prepare('SELECT id FROM states WHERE name = :name');
+    $sth->setFetchMode(\PDO::FETCH_ASSOC);
+    $sth->execute(['name' => $item['state']]);
+    $state = $sth->fetch();
+
+    // If result is empty - we need to INSERT state
+    if (!$state) {
+        $sth = $pdo->prepare('INSERT INTO states (name) VALUES (:name)');
+        $sth->execute(['name' => $item['state']]);
+
+        // We will use this variable to INSERT airport
+        $stateId = $pdo->lastInsertId();
+    } else {
+        // We will use this variable to INSERT airport
+        $state = $state['id'];
+    }
 
     // TODO Airports
 }
