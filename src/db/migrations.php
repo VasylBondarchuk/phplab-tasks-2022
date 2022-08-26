@@ -51,6 +51,7 @@ $sql = <<<'SQL'
 CREATE TABLE `airports` (
 	`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	`name` VARCHAR(50) NOT NULL COLLATE 'utf8_general_ci',
+	`code` VARCHAR(50) NOT NULL COLLATE 'utf8_general_ci',
 	`address` VARCHAR(150) NOT NULL COLLATE 'utf8_general_ci',
 	`timezone` VARCHAR(50) NOT NULL COLLATE 'utf8_general_ci',
 	`city_id` INT(10) UNSIGNED NOT NULL,

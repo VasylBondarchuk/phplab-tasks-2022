@@ -50,7 +50,7 @@ function filterByFirstLetter($airports): mixed
 {
     if(isFilteringByFirstLetterApplied()){
         $airports =  array_filter($airports, function($airport){ if(getAirportNameFirstLetter($airport['name'])
-                == getFilteringParamValue(FILTER_BY_FIRST_LETTER_QUERY)) { return $airport; }
+            == getFilteringParamValue(FILTER_BY_FIRST_LETTER_QUERY)) { return $airport; }
         });
     }
     return $airports;
@@ -64,7 +64,7 @@ function filterByState($airports): mixed
 {
     if(isFilteringByStateApplied()){
         $airports =  array_filter($airports,function($airport){if($airport['state'] === $_GET[FILTER_BY_STATE_QUERY]){
-                return $airport;
+            return $airport;
         }
         });
     }
@@ -294,16 +294,16 @@ function getQuerySymbol(): string
 function shouldBeDisplayedOnActivePage(array $airport, array $airports): bool
 {
     $airportIndex = array_search($airport, $airports);
-    return floor($airportIndex / PAGE_SIZE) == getActivePageNumber() - 1 ;
+    return floor($airportIndex / PAGE_SIZE) == getActivePageNumber($airports) - 1 ;
 }
 
 /**
  * @param int $pageNum
  * @return string
  */
-function getPageNumberLinkClass(int $pageNum):string
+function getPageNumberLinkClass(int $pageNum, array $airports):string
 {
-    return $pageNum === getActivePageNumber() ? "page-item active" : "page-item";
+    return $pageNum === getActivePageNumber($airports) ? "page-item active" : "page-item";
 }
 
 /**
@@ -317,10 +317,10 @@ function isPaginationApplied(): bool
 /**
  * @return int
  */
-function getActivePageNumber(): int
+function getActivePageNumber($airports): int
 {
     $pageNumber = DEFAULT_PAGE_NUMBER;
-    if(isPaginationApplied() && isPageNumberValid()){
+    if(isPaginationApplied() && isPageNumberValid($airports)){
         $pageNumber = filter_var($_GET[PAGE_QUERY], FILTER_SANITIZE_URL);
     }
     return $pageNumber;
@@ -329,34 +329,35 @@ function getActivePageNumber(): int
 /**
  * @return bool
  */
-function isPageNumberValid(): bool
+function isPageNumberValid($airports): bool
 {
-    return in_array($_GET[PAGE_QUERY], range(1, getPagesQty()));
+    return in_array($_GET[PAGE_QUERY], range(1, getPagesQty($airports)));
 }
 
 /**
  * @return int
  */
-function getFirstDisplayedPage(): int
+function getFirstDisplayedPage($airports): int
 {
-    return (getActivePageNumber() - PAGE_QTY_AROUND_ACTIVE) < 1  ? 1 : getActivePageNumber() - PAGE_QTY_AROUND_ACTIVE;
+    return (getActivePageNumber($airports) - PAGE_QTY_AROUND_ACTIVE) < 1
+        ? 1
+        : getActivePageNumber($airports) - PAGE_QTY_AROUND_ACTIVE;
 }
 
 /**
  * @return int
  */
-function getLastDisplayedPage(): int
+function getLastDisplayedPage($airports): int
 {
-    return (getActivePageNumber() + PAGE_QTY_AROUND_ACTIVE) > getPagesQty()  ? getPagesQty()
-        : getActivePageNumber() + PAGE_QTY_AROUND_ACTIVE;
+    return (getActivePageNumber($airports) + PAGE_QTY_AROUND_ACTIVE) > getPagesQty($airports)  ? getPagesQty($airports)
+        : getActivePageNumber($airports) + PAGE_QTY_AROUND_ACTIVE;
 }
 
 /**
  * @return int
  */
-function getPagesQty(): int
+function getPagesQty($airports): int
 {
-    $airports = require './airports.php';
     $filteredAirportsQty = count(filterByState(filterByFirstLetter($airports)));
     return (int)(ceil($filteredAirportsQty / PAGE_SIZE));
 }
@@ -364,9 +365,9 @@ function getPagesQty(): int
 /**
  * @return array
  */
-function getDisplayedPagesRange(): array
+function getDisplayedPagesRange($airports): array
 {
-    return range(getFirstDisplayedPage(), getLastDisplayedPage());
+    return range(getFirstDisplayedPage($airports), getLastDisplayedPage($airports));
 }
 
 /**
@@ -375,4 +376,14 @@ function getDisplayedPagesRange(): array
 function resetAllFilters(): string
 {
     return $_SERVER['PHP_SELF'];
+}
+
+function getSortingOrder()
+{
+    return $_GET[ORDER_QUERY] ?? "";
+}
+
+function getAllAirports()
+{
+    return require './airports.php';
 }

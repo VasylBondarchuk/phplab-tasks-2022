@@ -12,7 +12,6 @@ $airports = require './airports.php';
 $airports = filterByState(filterByFirstLetter($airports));
 $airports = sortingAirports($airports);
 $airports = filterByPage($airports);
-
 // Pagination
 /**
  *
@@ -129,8 +128,8 @@ $airports = filterByPage($airports);
          <li class="page-item">
                 <a class="page-link" href="<?= getPageNumberUrl(1);?>"> <?= '<<<' ?></a>
          </li>
-        <?php foreach(getDisplayedPagesRange() as $pageNum): ?>
-        <li class="<?= getPageNumberLinkClass($pageNum); ?>">
+        <?php foreach(getDisplayedPagesRange(getAllAirports()) as $pageNum): ?>
+        <li class="<?= getPageNumberLinkClass($pageNum, getAllAirports()); ?>">
             <a class="page-link" href="<?= getPageNumberUrl($pageNum);?>"> <?= $pageNum; ?></a>
         </li>
         <?php endforeach; ?>
