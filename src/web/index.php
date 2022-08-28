@@ -1,6 +1,5 @@
 <?php
 require_once './functions.php';
-$airports = require './airports.php';
 
 // Filtering
 /**
@@ -8,10 +7,9 @@ $airports = require './airports.php';
  * and apply filtering by First Airport Name Letter and/or Airport State
  * (see Filtering tasks 1 and 2 below)
  */
+$filteredAirports = getFilteredAirports();
+$displayedAirports = getDisplayedAirports();
 
-$airports = filterByState(filterByFirstLetter($airports));
-$airports = sortingAirports($airports);
-$airports = filterByPage($airports);
 // Pagination
 /**
  *
@@ -51,11 +49,11 @@ $airports = filterByPage($airports);
     <div class="alert alert-dark">
         Filter by first letter:
 
-        <?php foreach (getUniqueFirstLetters(require './airports.php') as $letter): ?>
-            <a href="<?=getFilteringByFirstLetterUrl($letter);?>"><?= $letter ?></a>
+        <?php foreach (getUniqueFirstLetters(getAllAirports()) as $letter): ?>
+            <a href="<?=setFilteringUrl(FILTER_BY_FIRST_LETTER_QUERY, $letter);?>"><?= $letter ?></a>
         <?php endforeach; ?>
 
-        <a href="<?=resetAllFilters();?>" class="float-right">Reset all filters</a>
+        <a href="<?=$_SERVER['PHP_SELF'];?>" class="float-right">Reset all filters</a>
     </div>
 
     <!--
@@ -72,10 +70,10 @@ $airports = filterByPage($airports);
     <table class="table">
         <thead>
         <tr>
-            <th scope="col"><a href="<?=getSortingUrl('name');?>"> Name </a></th>
-            <th scope="col"><a href="<?=getSortingUrl('code');?>"> Code </a></th>
-            <th scope="col"><a href="<?=getSortingUrl('state');?>"> State </a></th>
-            <th scope="col"><a href="<?=getSortingUrl('city');?>"> City </a></th>
+            <th scope="col"><a href="<?=setSortingUrl('name');?>"> Name </a></th>
+            <th scope="col"><a href="<?=setSortingUrl('code');?>"> Code </a></th>
+            <th scope="col"><a href="<?=setSortingUrl('state');?>"> State </a></th>
+            <th scope="col"><a href="<?=setSortingUrl('city');?>"> City </a></th>
             <th scope="col">Address</th>
             <th scope="col">Timezone</th>
         </tr>
@@ -98,11 +96,12 @@ $airports = filterByPage($airports);
         -->
 
 
-        <?php foreach ($airports as $airport): ?>
+        <?php foreach ($displayedAirports as $airport): ?>
             <tr>
                 <td><?= $airport['name'] ?></td>
                 <td><?= $airport['code'] ?></td>
-                <td><a href="<?=getFilteringByStateUrl($airport['state']);?>""><?= $airport['state'] ?></a></td>
+                <td><a href="<?=setFilteringUrl(FILTER_BY_STATE_QUERY,$airport['state']);?>"">
+                    <?= $airport['state'] ?></a></td>
                 <td><?= $airport['city'] ?></td>
                 <td><?= $airport['address'] ?></td>
                 <td><?= $airport['timezone'] ?></td>
@@ -120,21 +119,21 @@ $airports = filterByPage($airports);
          - use page key (i.e. /?page=1)
          - when you apply pagination - all filters and sorting are not reset
     -->
-    <?php if($airports): ?>
+    <?php if($displayedAirports): ?>
 
     <!-- Bottom pagination -->
     <nav aria-label="Navigation">
         <ul class="pagination justify-content-center">
          <li class="page-item">
-                <a class="page-link" href="<?= getPageNumberUrl(1);?>"> <?= '<<<' ?></a>
+                <a class="page-link" href="<?= setPageNumberUrl(1);?>"> <?= '<<<' ?></a>
          </li>
-        <?php foreach(getDisplayedPagesRange(getAllAirports()) as $pageNum): ?>
-        <li class="<?= getPageNumberLinkClass($pageNum, getAllAirports()); ?>">
-            <a class="page-link" href="<?= getPageNumberUrl($pageNum);?>"> <?= $pageNum; ?></a>
+        <?php foreach(range(getFirstDisplayedPage(), getLastDisplayedPage($filteredAirports)) as $pageNum): ?>
+        <li class="<?= getPageNumberLinkClass($pageNum); ?>">
+            <a class="page-link" href="<?= setPageNumberUrl($pageNum);?>"> <?= $pageNum; ?></a>
         </li>
         <?php endforeach; ?>
             <li class="page-item">
-                <a class="page-link" href="<?= getPageNumberUrl(getPagesQty($airports));?>"> <?= ">>>" ?></a>
+                <a class="page-link" href="<?= setPageNumberUrl(getDisplayedPagesQty($filteredAirports));?>"> <?= ">>>" ?></a>
             </li>
         </ul>
     </nav>

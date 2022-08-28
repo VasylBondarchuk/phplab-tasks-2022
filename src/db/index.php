@@ -3,16 +3,9 @@
  * Connect to DB
  */
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 /** @var \PDO $pdo */
 require_once './pdo_ini.php';
 require_once './functions.php';
-
-$allAirports = getAllAirportsDB($pdo);
-$airports = displayAirports($pdo);
 
 /**
  * SELECT the list of unique first letters using https://www.w3resource.com/mysql/string-functions/mysql-left-function.php
@@ -89,11 +82,11 @@ $airports = displayAirports($pdo);
     <div class="alert alert-dark">
         Filter by first letter:
 
-        <?php foreach (getUniqueFirstLetters($allAirports) as $letter): ?>
-            <a href="<?=getFilteringByFirstLetterUrl($letter);?>"><?= $letter ?></a>
+        <?php foreach (getUniqueFirstLetters(getAllAirportsDB($pdo)) as $letter): ?>
+            <a href="<?=setFilteringUrl(FILTER_BY_FIRST_LETTER_QUERY, $letter);?>"><?= $letter ?></a>
         <?php endforeach; ?>
 
-        <a href="<?=resetAllFilters();?>" class="float-right">Reset all filters</a>
+        <a href="<?=$_SERVER['PHP_SELF'];?>" class="float-right">Reset all filters</a>
     </div>
 
     <!--
@@ -109,10 +102,10 @@ $airports = displayAirports($pdo);
     <table class="table">
         <thead>
         <tr>
-            <th scope="col"><a href="<?=getSortingUrl('name');?>"> Name </a></th>
-            <th scope="col"><a href="<?=getSortingUrl('code');?>"> Code </a></th>
-            <th scope="col"><a href="<?=getSortingUrl('state');?>"> State </a></th>
-            <th scope="col"><a href="<?=getSortingUrl('city');?>"> City </a></th>
+            <th scope="col"><a href="<?=setSortingUrl('name');?>"> Name </a></th>
+            <th scope="col"><a href="<?=setSortingUrl('code');?>"> Code </a></th>
+            <th scope="col"><a href="<?=setSortingUrl('state');?>"> State </a></th>
+            <th scope="col"><a href="<?=setSortingUrl('city');?>"> City </a></th>
             <th scope="col">Address</th>
             <th scope="col">Timezone</th>
         </tr>
@@ -128,11 +121,11 @@ $airports = displayAirports($pdo);
              - when you apply filter_by_state, than filter_by_first_letter (see Filtering task #1) is not reset
                i.e. if you have filter_by_first_letter set you can additionally use filter_by_state
         -->
-        <?php foreach ($airports as $airport): ?>
+        <?php foreach (getDisplayedAirportsDB($pdo) as $airport): ?>
         <tr>
             <td><?= $airport['name'] ?></td>
             <td><?= $airport['code'] ?></td>
-            <td><a href="<?=getFilteringByStateUrl($airport['state_id']);?>""><?= $airport['state_name'] ?></a></td>
+            <td><a href="<?=setFilteringUrl(FILTER_BY_STATE_QUERY, $airport['state_id']);?>""><?= $airport['state_name'] ?></a></td>
             <td><?= $airport['city_name'] ?></td>
             <td><?= $airport['address'] ?></td>
             <td><?= $airport['timezone'] ?></td>
@@ -149,21 +142,21 @@ $airports = displayAirports($pdo);
          - use page key (i.e. /?page=1)
          - when you apply pagination - all filters and sorting are not reset
     -->
-    <?php if($airports): ?>
+    <?php if(getDisplayedAirportsDB($pdo)): ?>
 
         <!-- Bottom pagination -->
         <nav aria-label="Navigation">
             <ul class="pagination justify-content-center">
                 <li class="page-item">
-                    <a class="page-link" href="<?= getPageNumberUrl(1);?>"> <?= '<<<' ?></a>
+                    <a class="page-link" href="<?= setPageNumberUrl(1);?>"> <?= '<<<' ?></a>
                 </li>
-                <?php foreach(getDisplayedPagesRange($airports) as $pageNum): ?>
-                    <li class="<?= getPageNumberLinkClass($pageNum, $airports); ?>">
-                        <a class="page-link" href="<?= getPageNumberUrl($pageNum);?>"> <?= $pageNum; ?></a>
+                <?php foreach(range(getFirstDisplayedPage(), getLastDisplayedPage(getFilteredAirportsDB($pdo))) as $pageNum): ?>
+                    <li class="<?= getPageNumberLinkClass($pageNum); ?>">
+                        <a class="page-link" href="<?= setPageNumberUrl($pageNum);?>"> <?= $pageNum; ?></a>
                     </li>
                 <?php endforeach; ?>
                 <li class="page-item">
-                    <a class="page-link" href="<?= getPageNumberUrl(getPagesQty($airports));?>"> <?= ">>>" ?></a>
+                    <a class="page-link" href="<?= setPageNumberUrl(getDisplayedPagesQty(getFilteredAirportsDB($pdo)));?>"> <?= ">>>" ?></a>
                 </li>
             </ul>
         </nav>
