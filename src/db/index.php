@@ -6,6 +6,8 @@
 /** @var \PDO $pdo */
 require_once './pdo_ini.php';
 require_once './functions.php';
+print_r(count(getDisplayedAirportsDB($pdo)));
+
 
 /**
  * SELECT the list of unique first letters using https://www.w3resource.com/mysql/string-functions/mysql-left-function.php
@@ -50,8 +52,6 @@ require_once './functions.php';
  *
  * For city_name and state_name fields you can use alias https://www.mysqltutorial.org/mysql-alias/
  */
-
-//print_r($airports);exit;
 
 ?>
 <!doctype html>
@@ -125,7 +125,7 @@ require_once './functions.php';
         <tr>
             <td><?= $airport['name'] ?></td>
             <td><?= $airport['code'] ?></td>
-            <td><a href="<?=setFilteringUrl(FILTER_BY_STATE_QUERY, $airport['state_id']);?>""><?= $airport['state_name'] ?></a></td>
+            <td><a href="<?=setFilteringUrl(FILTER_BY_STATE_QUERY, $airport['state_name']);?>""><?= $airport['state_name'] ?></a></td>
             <td><?= $airport['city_name'] ?></td>
             <td><?= $airport['address'] ?></td>
             <td><?= $airport['timezone'] ?></td>
@@ -150,11 +150,17 @@ require_once './functions.php';
                 <li class="page-item">
                     <a class="page-link" href="<?= setPageNumberUrl(1);?>"> <?= '<<<' ?></a>
                 </li>
+                <li class="page-item">
+                    <a class="page-link" href="<?= setPageNumberUrl(getPrevPage());?>"> <?= '<<' ?></a>
+                </li>
                 <?php foreach(range(getFirstDisplayedPage(), getLastDisplayedPage(getFilteredAirportsDB($pdo))) as $pageNum): ?>
                     <li class="<?= getPageNumberLinkClass($pageNum); ?>">
                         <a class="page-link" href="<?= setPageNumberUrl($pageNum);?>"> <?= $pageNum; ?></a>
                     </li>
                 <?php endforeach; ?>
+                <li class="page-item">
+                    <a class="page-link" href="<?= setPageNumberUrl(getNextPage(getFilteredAirportsDB($pdo)));?>"> <?= ">>" ?></a>
+                </li>
                 <li class="page-item">
                     <a class="page-link" href="<?= setPageNumberUrl(getDisplayedPagesQty(getFilteredAirportsDB($pdo)));?>"> <?= ">>>" ?></a>
                 </li>

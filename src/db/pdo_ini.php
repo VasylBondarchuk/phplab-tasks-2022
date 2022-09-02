@@ -1,8 +1,13 @@
 <?php
 $config = require_once './config.php';
 
-$pdo = new \PDO(
-    sprintf('mysql:host=%s;dbname=%s', $config['host'], $config['dbname']),
-    $config['user'],
-    $config['pass'],
-);
+try {
+    $pdo = new \PDO(
+        sprintf('mysql:host=%s;dbname=%s', $config['host'], $config['dbname']),
+        $config['user'],
+        $config['pass'],
+    );
+} catch (PDOException $e) {
+    print "Error!: " . $e->getMessage() . "<br/>";
+    die();
+}

@@ -11,7 +11,7 @@
  */
 
 const PAGE_SIZE = 5;
-const PAGE_QTY_AROUND_ACTIVE = 10;
+const PAGE_QTY_AROUND_ACTIVE = 5;
 const DEFAULT_SORTING_ORDER = 'asc';
 const FILTER_BY_STATE_QUERY = 'filter_by_state';
 const FILTER_BY_FIRST_LETTER_QUERY = 'filter_by_first_letter';
@@ -32,6 +32,7 @@ function getUniqueFirstLetters(array $airports): array
 }
 
 // FILTERING
+
 
 /**
  * @param $airports
@@ -63,9 +64,8 @@ function getAirportNameFirstLetter(string $airportName): string
 function filterByState($airports): mixed
 {
     if(isFilteringApplied(FILTER_BY_STATE_QUERY)){
-        $airports =  array_filter($airports,function($airport){if($airport['state'] === $_GET[FILTER_BY_STATE_QUERY]){
-            return $airport;
-        }
+        $airports =  array_filter($airports,function($airport){if($airport['state']
+            === getQueryValue(FILTER_BY_STATE_QUERY)){ return $airport; }
         });
     }
     return $airports;
@@ -112,7 +112,7 @@ function sortingAirports(array $airports) : array
  * @param string $filteringVal
  * @return string
  */
-function setFilteringUrl(string $filteringParam, string $filteringVal): string
+function setFilteringUrl(string $filteringParam, string $filteringVal = null): string
 {
     $data = [$filteringParam => $filteringVal];
     return setUrl($data);
@@ -218,6 +218,7 @@ function getFirstDisplayedPage(): int
 }
 
 /**
+ * @param $filteredAirports
  * @return int
  */
 function getLastDisplayedPage($filteredAirports): int
@@ -228,11 +229,26 @@ function getLastDisplayedPage($filteredAirports): int
 }
 
 /**
+ * @param array $filteredAirports
  * @return int
  */
 function getDisplayedPagesQty(array $filteredAirports): int
 {
     return (int)(ceil(count($filteredAirports) / PAGE_SIZE));
+}
+
+function getNextPage($filteredAirports): int
+{
+    return getActivePageNumber() + 1 <= getLastDisplayedPage($filteredAirports)
+        ? getActivePageNumber() + 1
+        : getLastDisplayedPage($filteredAirports);
+}
+
+function getPrevPage(): int
+{
+    return getActivePageNumber() - 1 >= getFirstDisplayedPage()
+        ? getActivePageNumber() - 1
+        : getFirstDisplayedPage();
 }
 
 /**

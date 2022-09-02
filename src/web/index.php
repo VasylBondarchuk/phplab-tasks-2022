@@ -127,11 +127,17 @@ $displayedAirports = getDisplayedAirports();
          <li class="page-item">
                 <a class="page-link" href="<?= setPageNumberUrl(1);?>"> <?= '<<<' ?></a>
          </li>
+            <li class="page-item">
+                <a class="page-link" href="<?= setPageNumberUrl(getPrevPage());?>"> <?= '<<' ?></a>
+            </li>
         <?php foreach(range(getFirstDisplayedPage(), getLastDisplayedPage($filteredAirports)) as $pageNum): ?>
         <li class="<?= getPageNumberLinkClass($pageNum); ?>">
             <a class="page-link" href="<?= setPageNumberUrl($pageNum);?>"> <?= $pageNum; ?></a>
         </li>
         <?php endforeach; ?>
+            <li class="page-item">
+                <a class="page-link" href="<?= setPageNumberUrl(getNextPage(getFilteredAirports()));?>"> <?= ">>" ?></a>
+            </li>
             <li class="page-item">
                 <a class="page-link" href="<?= setPageNumberUrl(getDisplayedPagesQty($filteredAirports));?>"> <?= ">>>" ?></a>
             </li>

@@ -10,7 +10,9 @@
 require_once './pdo_ini.php';
 
 foreach (require_once('../web/airports.php') as $item) {
-    // Cities
+
+    // CITIES
+
     // To check if city with this name exists in the DB we need to SELECT it first
     $sth = $pdo->prepare('SELECT id FROM cities WHERE name = :name');
     $sth->setFetchMode(\PDO::FETCH_ASSOC);
@@ -29,7 +31,8 @@ foreach (require_once('../web/airports.php') as $item) {
         $cityId = $city['id'];
     }
 
-    // States
+    // STATES
+
     // To check if state with this name exists in the DB we need to SELECT it first
     $sth = $pdo->prepare('SELECT id FROM states WHERE name = :name');
     $sth->setFetchMode(\PDO::FETCH_ASSOC);
@@ -48,13 +51,14 @@ foreach (require_once('../web/airports.php') as $item) {
         $stateId = $state['id'];
     }
 
-    // Airports
+    // AIRPORTS
+
     $sth = $pdo->prepare('SELECT id FROM airports WHERE name = :name');
     $sth->setFetchMode(\PDO::FETCH_ASSOC);
     $sth->execute(['name' => $item['name']]);
     $airport = $sth->fetch();
 
-    // If result is empty - we need to INSERT city
+    // If result is empty - we need to INSERT airport
     if (!$airport) {
         $sth = $pdo->prepare(
             'INSERT INTO airports (name, code, address, timezone, city_id, state_id) VALUES (:name,:code,:address,:timezone,:city_id,:state_id)');
