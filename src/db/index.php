@@ -6,7 +6,7 @@
 /** @var \PDO $pdo */
 require_once './pdo_ini.php';
 require_once './functions.php';
-print_r(count(getDisplayedAirportsDB($pdo)));
+echo getQueryValue(SORTING_QUERY);
 
 
 /**
@@ -102,10 +102,9 @@ print_r(count(getDisplayedAirportsDB($pdo)));
     <table class="table">
         <thead>
         <tr>
-            <th scope="col"><a href="<?=setSortingUrl('name');?>"> Name </a></th>
-            <th scope="col"><a href="<?=setSortingUrl('code');?>"> Code </a></th>
-            <th scope="col"><a href="<?=setSortingUrl('state');?>"> State </a></th>
-            <th scope="col"><a href="<?=setSortingUrl('city');?>"> City </a></th>
+            <?php foreach (SORTING_PARAMS_NAMES as $name => $displayedName): ?>
+            <th scope="col"><a href="<?=setSortingUrl($name);?>"> <?=$displayedName;?> </a></th>
+            <?php endforeach; ?>
             <th scope="col">Address</th>
             <th scope="col">Timezone</th>
         </tr>
@@ -125,7 +124,8 @@ print_r(count(getDisplayedAirportsDB($pdo)));
         <tr>
             <td><?= $airport['name'] ?></td>
             <td><?= $airport['code'] ?></td>
-            <td><a href="<?=setFilteringUrl(FILTER_BY_STATE_QUERY, $airport['state_name']);?>""><?= $airport['state_name'] ?></a></td>
+            <td><a href="<?=setFilteringUrl(FILTER_BY_STATE_QUERY, $airport['state_name']);?>"">
+                <?= $airport['state_name'] ?></a></td>
             <td><?= $airport['city_name'] ?></td>
             <td><?= $airport['address'] ?></td>
             <td><?= $airport['timezone'] ?></td>
@@ -159,10 +159,10 @@ print_r(count(getDisplayedAirportsDB($pdo)));
                     </li>
                 <?php endforeach; ?>
                 <li class="page-item">
-                    <a class="page-link" href="<?= setPageNumberUrl(getNextPage(getFilteredAirportsDB($pdo)));?>"> <?= ">>" ?></a>
+                    <a class="page-link" href="<?=setPageNumberUrl(getNextPage(getFilteredAirportsDB($pdo)));?>"><?=">>"?></a>
                 </li>
                 <li class="page-item">
-                    <a class="page-link" href="<?= setPageNumberUrl(getDisplayedPagesQty(getFilteredAirportsDB($pdo)));?>"> <?= ">>>" ?></a>
+                    <a class="page-link" href="<?= setPageNumberUrl(getDisplayedPagesQty(getFilteredAirportsDB($pdo)));?>"><?=">>>"?></a>
                 </li>
             </ul>
         </nav>
