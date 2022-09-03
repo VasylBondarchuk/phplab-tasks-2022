@@ -5,7 +5,7 @@ require_once('../web/functions.php');
 
 const PATH_TO_LOG_FILE = './log.txt';
 const LOGGING_TIME_FORMAT = 'Y/m/d h:i:s';
-const SORTING_PARAMS_NAMES = ['name' => 'Name','code' => 'Code','state_name' => 'State','city_name' => 'City'];
+const SORTING_PARAMS_NAMES = ['name' => 'Name', 'code' => 'Code', 'state_name' => 'State', 'city_name' => 'City'];
 const DEFAULT_SORTING_PARAM = 'name';
 
 /**
@@ -31,8 +31,7 @@ function getAllAirportsDB(\PDO $pdo): array
 function getFilteredAirportsDB(\PDO $pdo): array
 {
     $query = getAllRecordsSqlQuery() . getFilteringSqlQuery();
-    $bindParamNames = ['firstLetter','stateName'];
-    return customFetchAll($pdo, $query, $bindParamNames);
+    return customFetchAll($pdo, $query, getBindParamValues());
 }
 
 /**
@@ -44,9 +43,8 @@ function getFilteredAirportsDB(\PDO $pdo): array
  */
 function getDisplayedAirportsDB(\PDO $pdo): array
 {
-    $query = getAllRecordsSqlQuery() . getFilteringSqlQuery() . getSortingSqlQuery() . " LIMIT :limit OFFSET :offset";
-    $bindParamNames = ['firstLetter', 'stateName', 'limit', 'offset'];
-    return customFetchAll($pdo, $query, $bindParamNames);
+    $sqlQuery = getAllRecordsSqlQuery() . getFilteringSqlQuery() . getSortingSqlQuery() . getPaginationSqlQuery();
+    return customFetchAll($pdo, $sqlQuery, getBindParamValues());
 }
 
 /**
@@ -55,7 +53,7 @@ function getDisplayedAirportsDB(\PDO $pdo): array
 function getAllRecordsSqlQuery(): string
 {
     $sqlQuery = <<<'SQL'
-    SELECT airports.id, airports.name, airports.code, airports.address, airports.timezone,
+    SELECT DISTINCT airports.id, airports.name, airports.code, airports.address, airports.timezone,
     cities.name AS city_name, states.name AS state_name FROM airports INNER JOIN cities
     ON airports.city_id = cities.id INNER JOIN states ON airports.state_id = states.id
     SQL;
@@ -74,30 +72,40 @@ function getFilteringSqlQuery(): string
  */
 function getSortingSqlQuery(): string
 {
+    // Validate sorting params, obtained from URL to avoid any injections
     $sortingParam = in_array(getQueryValue(SORTING_QUERY), array_keys(SORTING_PARAMS_NAMES))
         ? getQueryValue(SORTING_QUERY)
         : DEFAULT_SORTING_PARAM;
     $sortingOrder = in_array(getQueryValue(ORDER_QUERY), ['asc','desc'])
         ? getQueryValue(ORDER_QUERY)
         : DEFAULT_SORTING_ORDER;
-    return  $sortingParam ? " ORDER BY $sortingParam $sortingOrder " : "";
+    return  isFilteringApplied(ORDER_QUERY) ? " ORDER BY $sortingParam $sortingOrder " : "";
+}
+
+/**
+ * Pagination parameters are always integers, so we can use them in sql query as is
+ *
+ * @return string
+ */
+function getPaginationSqlQuery() : string
+{
+    $offset = (getActivePageNumber() - 1) * PAGE_SIZE;
+    $limit = PAGE_SIZE;
+    return isFilteringApplied(PAGE_QUERY) ? " LIMIT $limit OFFSET $offset" : "";
 }
 
 /**
  * @param PDO $pdo
  * @param string $query
- * @param array $bindParams
+ * @param array $bindParamsValues
  * @return bool|array
  */
-function customFetchAll(\PDO $pdo, string $query, array $bindParams = []): bool|array
+function customFetchAll(\PDO $pdo, string $query, array $bindParamsValues = []): bool|array
 {
     try {
         $sth = $pdo->prepare($query);
         $sth->setFetchMode(\PDO::FETCH_ASSOC);
-        foreach($bindParams as $bindParam){
-            customBindParam($sth, $bindParam);
-        }
-        $sth->execute();
+        $sth->execute($bindParamsValues);
         $result = $sth->fetchAll();
     } catch (PDOException $e) {
         writeToLog("Error in $query execution. Reason: " . $e->getMessage());
@@ -107,31 +115,29 @@ function customFetchAll(\PDO $pdo, string $query, array $bindParams = []): bool|
 }
 
 /**
- * @param PDOStatement $sth
- * @param string $bindParamName
- * @return bool
+ * @return array
  */
-function customBindParam(\PDOStatement $sth, string $bindParamName): bool
+function getBindParamValues(): array
 {
-    $bindParamArgsNames = ['paramName','paramValue','paramType'];
-    $bindParamValues = [
-        'firstLetter' => ['firstLetter', getQueryValue(FILTER_BY_FIRST_LETTER_QUERY) . "%", \PDO::PARAM_STR],
-        'stateName' => ['stateName', getQueryValue(FILTER_BY_STATE_QUERY) ?: "%", \PDO::PARAM_STR],
-        'offset' => ['offset', (getActivePageNumber() - 1) * PAGE_SIZE, \PDO::PARAM_INT],
-        'limit' => ['limit', PAGE_SIZE, \PDO::PARAM_INT],
+    return [
+        'firstLetter' => getQueryValue(FILTER_BY_FIRST_LETTER_QUERY) . "%",
+        'stateName' => getQueryValue(FILTER_BY_STATE_QUERY) ?: "%"
     ];
-    extract(array_combine($bindParamArgsNames, $bindParamValues[$bindParamName]));
-    return $sth->bindParam($paramName, $paramValue, $paramType);
 }
 
 /**
- * @param $message
+ * @param string $message
  * @return void
  */
 function writeToLog(string $message): void
 {
     $file = PATH_TO_LOG_FILE;
-    $current = file_get_contents($file);
-    $current .= '['. date(LOGGING_TIME_FORMAT ).']' . $message . PHP_EOL;
-    file_put_contents($file, $current);
+    $loggingTime = date(LOGGING_TIME_FORMAT);
+    $record = "[$loggingTime] " . $message . PHP_EOL;
+    if(!is_file($file)){
+        file_put_contents($file, $record);
+    }
+    $content = file_get_contents($file);
+    $content .= $record;
+    file_put_contents($file, $content);
 }

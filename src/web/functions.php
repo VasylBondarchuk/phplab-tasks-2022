@@ -26,13 +26,12 @@ const PAGE_QUERY = 'page';
 function getUniqueFirstLetters(array $airports): array
 {
     $airportsNames = array_column($airports, 'name');
-    $airportsNamesFirstLetters = array_unique(array_map('getAirportNameFirstLetter',$airportsNames));
+    $airportsNamesFirstLetters = array_unique(array_map('getAirportNameFirstLetter', $airportsNames));
     sort($airportsNamesFirstLetters);
     return $airportsNamesFirstLetters;
 }
 
 // FILTERING
-
 
 /**
  * @param $airports
@@ -64,7 +63,7 @@ function getAirportNameFirstLetter(string $airportName): string
 function filterByState($airports): mixed
 {
     if(isFilteringApplied(FILTER_BY_STATE_QUERY)){
-        $airports =  array_filter($airports,function($airport){if($airport['state']
+        $airports =  array_filter($airports, function($airport){if($airport['state']
             === getQueryValue(FILTER_BY_STATE_QUERY)){ return $airport; }
         });
     }
@@ -108,40 +107,36 @@ function sortingAirports(array $airports) : array
 }
 
 /**
- * @param string $filteringParam
- * @param string $filteringVal
- * @return string
- */
-function setFilteringUrl(string $filteringParam, string $filteringVal = null): string
-{
-    $data = [$filteringParam => $filteringVal];
-    return setUrl($data);
-}
-
-/**
  * @param int $pageNumber
  * @return string
  */
 function setPageNumberUrl(int $pageNumber): string
 {
-    $data = [PAGE_QUERY => $pageNumber];
-    $url = setUrl($data);
+    $url = $_SERVER['PHP_SELF'] . '?' . http_build_query([PAGE_QUERY => $pageNumber]);
     if(isFilteringApplied(PAGE_QUERY)){
-        $url = str_replace(PAGE_QUERY . '=' . getQueryValue(PAGE_QUERY),PAGE_QUERY
-            . '=' . $pageNumber, $_SERVER['REQUEST_URI']);
+        $url = changQueryValue(PAGE_QUERY, $pageNumber, $_SERVER['REQUEST_URI']);
     }
     return $url;
 }
 
 /**
- * @param $data
+ * @param string $filteringParam
+ * @param string $filteringValue
  * @return string
  */
-function setUrl($data): string
+function setFilteringUrl(string $filteringParam, string $filteringValue): string
 {
-    $pageQuery = [PAGE_QUERY => 1];
-    $data = array_merge($pageQuery, $data);
-    return $_SERVER['PHP_SELF'] . '?'. http_build_query($data);
+    $url = $_SERVER['REQUEST_URI'];
+    $pageNum = 1;
+    if(isFilteringApplied(PAGE_QUERY)) {
+        $url = changQueryValue(PAGE_QUERY,1, $url);
+        $pageNum = null;
+    }
+    $url = $url . getQueryChar() . http_build_query([PAGE_QUERY => $pageNum, $filteringParam => $filteringValue]);
+    if(isFilteringApplied($filteringParam)){
+        $url = changQueryValue($filteringParam, $filteringValue, $_SERVER['REQUEST_URI']);
+    }
+    return $url;
 }
 
 /**
@@ -150,31 +145,26 @@ function setUrl($data): string
  */
 function setSortingUrl(string $sortingParam): string
 {
-    $data = [SORTING_QUERY => $sortingParam, ORDER_QUERY => DEFAULT_SORTING_ORDER];
-    $queryChar = $_SERVER['QUERY_STRING'] ? '&' : '?';
-    $sortingUrl = $_SERVER['REQUEST_URI']. $queryChar . http_build_query($data);
+    $order = getQueryValue(ORDER_QUERY) == 'asc' ? 'desc'  : 'asc';
+    $url = $_SERVER['REQUEST_URI'] . getQueryChar() . http_build_query([SORTING_QUERY => $sortingParam,
+            ORDER_QUERY => $order]);
     if(isset($_GET[SORTING_QUERY])){
-        $sortingUrl = getQueryValue(SORTING_QUERY) == $sortingParam ? switchSortingOrder() : switchSortingParameter($sortingParam);
+        $url = getQueryValue(SORTING_QUERY) == $sortingParam
+            ? changQueryValue(ORDER_QUERY, $order, $_SERVER['REQUEST_URI'])
+            : changQueryValue(SORTING_QUERY, $sortingParam, $_SERVER['REQUEST_URI']);
     }
-    return $sortingUrl;
+    return $url;
 }
 
 /**
+ * @param string $queryParam
+ * @param string $queryValue
+ * @param string $urlQuery
  * @return string
  */
-function switchSortingOrder(): string
+function changQueryValue(string $queryParam, string $queryValue, string $urlQuery): string
 {
-    $switchedOrder = getQueryValue(ORDER_QUERY) == 'asc' ? 'desc' : 'asc';
-    return str_replace(getQueryValue(ORDER_QUERY), $switchedOrder, $_SERVER["REQUEST_URI"]);
-}
-
-/**
- * @param string $sortingParam
- * @return string
- */
-function switchSortingParameter(string $sortingParam): string
-{
-    return str_replace(getQueryValue(SORTING_QUERY), $sortingParam, $_SERVER["REQUEST_URI"]);
+    return str_replace(getQueryValue($queryParam), $queryValue, $urlQuery);
 }
 
 /**
@@ -184,6 +174,11 @@ function switchSortingParameter(string $sortingParam): string
 function getQueryValue(string $query) : string
 {
     return $_GET[$query] ?? '';
+}
+
+function getQueryChar(): string
+{
+    return $_SERVER['QUERY_STRING'] ? '&' : '?';
 }
 
 // PAGINATION
@@ -204,7 +199,7 @@ function getActivePageNumber(): int
 {
     $pageNumber = 1;
     if(isFilteringApplied(PAGE_QUERY)){
-        $pageNumber = $_GET[PAGE_QUERY];
+        $pageNumber = getQueryValue(PAGE_QUERY) ?? $pageNumber;
     }
     return (int)$pageNumber;
 }
@@ -237,18 +232,22 @@ function getDisplayedPagesQty(array $filteredAirports): int
     return (int)(ceil(count($filteredAirports) / PAGE_SIZE));
 }
 
+/**
+ * @param $filteredAirports
+ * @return int
+ */
 function getNextPage($filteredAirports): int
 {
-    return getActivePageNumber() + 1 <= getLastDisplayedPage($filteredAirports)
-        ? getActivePageNumber() + 1
+    return getActivePageNumber() + 1 <= getLastDisplayedPage($filteredAirports) ? getActivePageNumber() + 1
         : getLastDisplayedPage($filteredAirports);
 }
 
+/**
+ * @return int
+ */
 function getPrevPage(): int
 {
-    return getActivePageNumber() - 1 >= getFirstDisplayedPage()
-        ? getActivePageNumber() - 1
-        : getFirstDisplayedPage();
+    return getActivePageNumber() - 1 >= getFirstDisplayedPage() ? getActivePageNumber() - 1 : getFirstDisplayedPage();
 }
 
 /**
@@ -269,7 +268,7 @@ function getAllAirports() : array
  */
 function getFilteredAirports(): array
 {
-    return sortingAirports(filterByState(filterByFirstLetter(getAllAirports())));
+    return filterByState(filterByFirstLetter(getAllAirports()));
 }
 
 /**

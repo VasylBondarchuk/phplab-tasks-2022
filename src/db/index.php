@@ -6,9 +6,9 @@
 /** @var \PDO $pdo */
 require_once './pdo_ini.php';
 require_once './functions.php';
-echo getQueryValue(SORTING_QUERY);
 
 
+ini_set('display_errors', 1); ini_set('display_startup_errors', 1); error_reporting(E_ALL);
 /**
  * SELECT the list of unique first letters using https://www.w3resource.com/mysql/string-functions/mysql-left-function.php
  * and https://www.w3resource.com/sql/select-statement/queries-with-distinct.php
@@ -124,7 +124,7 @@ echo getQueryValue(SORTING_QUERY);
         <tr>
             <td><?= $airport['name'] ?></td>
             <td><?= $airport['code'] ?></td>
-            <td><a href="<?=setFilteringUrl(FILTER_BY_STATE_QUERY, $airport['state_name']);?>"">
+                <td><a href="<?=setFilteringUrl(FILTER_BY_STATE_QUERY, $airport['state_name']);?>"">
                 <?= $airport['state_name'] ?></a></td>
             <td><?= $airport['city_name'] ?></td>
             <td><?= $airport['address'] ?></td>
@@ -148,10 +148,10 @@ echo getQueryValue(SORTING_QUERY);
         <nav aria-label="Navigation">
             <ul class="pagination justify-content-center">
                 <li class="page-item">
-                    <a class="page-link" href="<?= setPageNumberUrl(1);?>"> <?= '<<<' ?></a>
+                    <a class="page-link" href="<?= setPageNumberUrl(1);?>"> <?= '<<' ?></a>
                 </li>
                 <li class="page-item">
-                    <a class="page-link" href="<?= setPageNumberUrl(getPrevPage());?>"> <?= '<<' ?></a>
+                    <a class="page-link" href="<?= setPageNumberUrl(getPrevPage());?>"> <?= '<' ?></a>
                 </li>
                 <?php foreach(range(getFirstDisplayedPage(), getLastDisplayedPage(getFilteredAirportsDB($pdo))) as $pageNum): ?>
                     <li class="<?= getPageNumberLinkClass($pageNum); ?>">
@@ -159,10 +159,10 @@ echo getQueryValue(SORTING_QUERY);
                     </li>
                 <?php endforeach; ?>
                 <li class="page-item">
-                    <a class="page-link" href="<?=setPageNumberUrl(getNextPage(getFilteredAirportsDB($pdo)));?>"><?=">>"?></a>
+                    <a class="page-link" href="<?=setPageNumberUrl(getNextPage(getFilteredAirportsDB($pdo)));?>"><?=">"?></a>
                 </li>
                 <li class="page-item">
-                    <a class="page-link" href="<?= setPageNumberUrl(getDisplayedPagesQty(getFilteredAirportsDB($pdo)));?>"><?=">>>"?></a>
+                    <a class="page-link" href="<?= setPageNumberUrl(getDisplayedPagesQty(getFilteredAirportsDB($pdo)));?>"><?=">>"?></a>
                 </li>
             </ul>
         </nav>
