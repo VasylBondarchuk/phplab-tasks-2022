@@ -26,7 +26,7 @@ require_once './pdo_ini.php';
 
 // cities
 $sql = <<<'SQL'
-CREATE TABLE `cities` (
+CREATE TABLE IF NOT EXISTS `cities` (
 	`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	`name` VARCHAR(50) NOT NULL COLLATE 'utf8_general_ci',
 	PRIMARY KEY (`id`)
@@ -36,7 +36,7 @@ $pdo->exec($sql);
 
 // states
 $sql = <<<'SQL'
-CREATE TABLE `states` (
+CREATE TABLE IF NOT EXISTS `states` (
 	`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	`name` VARCHAR(50) NOT NULL COLLATE 'utf8_general_ci',
 	`code` VARCHAR(50) NOT NULL COLLATE 'utf8_general_ci',
@@ -48,7 +48,7 @@ $pdo->exec($sql);
 
 // airports
 $sql = <<<'SQL'
-CREATE TABLE `airports` (
+CREATE TABLE IF NOT EXISTS `airports` (
 	`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	`name` VARCHAR(50) NOT NULL COLLATE 'utf8_general_ci',
 	`code` VARCHAR(50) NOT NULL COLLATE 'utf8_general_ci',
